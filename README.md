@@ -1,7 +1,7 @@
 # La programmation système en Python
 
 Ce dépôt héberge temporairement les sources du cours « *La programmation
-en Python* », destiné à [Zeste de Savoir](http://zestedesavoir.com).
+système en Python* », destiné à [Zeste de Savoir](http://zestedesavoir.com).
 
 Ce brouillon est consultable :
 
