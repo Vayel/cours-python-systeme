@@ -10,6 +10,6 @@ Ce brouillon est consultable :
 
 * en téléchargement [au format
   PDF](http://arnaudcalmettes.github.io/cours-python-systeme/python_linux.pdf) ou [en ebook
-(".epub")](http://arnaudcalmettes.github.io/cours-python-systeme/pyton_linux.epub).
+(".epub")](http://arnaudcalmettes.github.io/cours-python-systeme/python_linux.epub).
 
 Toutes remarques de fond, correction, Pull-Request sont évidemment les bienvenues.
