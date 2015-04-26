@@ -388,7 +388,7 @@ L'autre syntaxe acceptée par `chmod` consiste à spécifier :
   l'exécution)
 
 Par exemple, pour rajouter les droits en exécution au propriétaire et ceux en
-lecture au groupe et aux autres :
+écriture au groupe et aux autres :
 
 ```
 $ chmod u+x,go+w monfichier
@@ -426,4 +426,62 @@ directement la valeur octale :
 '-rw-rw-r--'
 ```
 
-## Les "*file-like objects*" en Python
+## La manipulation des flux de données en Python
+
+Maintenant que nous avons une abstraction pour représenter les fichiers sur un
+périphérique de stockage, voyons un peu comment le noyau va présenter ces
+fichiers aux programmes qui sont en train de s'exécuter. Nous en profiterons au
+passage pour découvrir la couche d'abstaction supplémentaire que rajoute
+Python, pour étendre ce concept à tout ce qui ressemble de près ou de loin à un
+*flux de données*.
+
+### Inodes, descripteurs de fichiers et flux de données
+
+Bien sûr, manipuler des fichiers est une chose très courante en programmation.
+Après tout, une fois que l'on a compris le fonctionnement des fonctions de base
+`open()`, `read()`, `write()` et `close()`, on peut se dire qu'on a fait le
+tour de la question… La figure 2.3 montre qu'en réalité, ces quelques appels
+système ne sont que la partie émergée de l'iceberg, et qu'il y a bien plus à en
+dire que d'expliquer leur signature !
+
+![Accès aux fichiers en mémoire](src/img/fd_table.png)
+
+Alors, que se passe-t'il *réellement* lorsque vous ouvrez un fichier dans un
+programme ?
+
+Pour commencer, le noyau va aller chercher l'inode correspondant dans le
+système de fichiers. Une fois qu'il a trouvé cet inode (disque), il va le
+charger en mémoire. Ensuite, il va rajouter une entrée dans sa *table des
+fichiers ouverts*, qui contient en particulier un pointeur sur cet inode
+(mémoire). Cette entrée va également contenir d'autres données intéressantes,
+comme le *mode d'ouverture* du fichier (lecture, écriture, ajout...) et un
+indicateur de position (pour savoir où le processus[^processfwddecl] en est
+dans la lecture du fichier).
+
+[^processfwddecl]: Nous n'avons pas encore vu la notion de *processus* dans ce
+cours. Si cela vous perturbe, considérez qu'un processus est une instance d'un
+programme qui est en train de tourner sur l'ordinateur.
+
+Cette table des fichiers ouverts est globale à tous les processus qui tournent
+sur le système. Cela permet, dans certains cas particuliers, que plusieurs
+processus manipulent la même entrée de la table des fichiers ouverts, mais nous
+verrons ce genre de choses beaucoup plus loin dans ce cours.
+
+Le processus qui va chercher à manipuler ce fichier, quant à lui, dispose (côté
+noyau) d'une *table des descripteurs de fichiers*, qui associe, grosso-modo, un
+indice entier (le **descripteur de fichier**, qu'on abrègera FD dans la suite,
+pour *file descriptor*) à une entrée de la table des fichiers ouverts. Ce qu'il
+est intéressant de noter, c'est que cette table est *locale* au processus, tout
+comme les descripteurs de fichiers (puisque ce sont tout simplement les indices
+de cette table). Ainsi, comme le schéma nous le montre, on peut très bien avoir
+un programme ayant ouvert un fichier et que le noyau aura placé dans l'entrée
+numéro 5 de sa table des FD, et un second programme qui aura ouvert le même
+fichier mais en l'associant localement au FD 12.
+
+Le fait que la table des descripteurs des fichiers du processus se trouve *côté
+noyau* n'est pas anodin, puisque ça signifie qu'on ne peut pas la manipuler
+directement (et donc que l'on ne peut pas faire n'importe quoi avec). Par
+contre, les descripteurs de fichiers sont exposés côté utilisateur, puisque
+ce sont eux que le programme passe en argument aux appels système `read`,
+`write` et `close` (et tout une palanquée d'autres dont nous nous garderons
+bien d'établir une liste aussi fastidieuse que superflue).
