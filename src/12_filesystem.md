@@ -435,7 +435,7 @@ passage pour découvrir la couche d'abstaction supplémentaire que rajoute
 Python, pour étendre ce concept à tout ce qui ressemble de près ou de loin à un
 *flux de données*.
 
-### Inodes, descripteurs de fichiers et flux de données
+### Inodes et descripteurs de fichiers
 
 Bien sûr, manipuler des fichiers est une chose très courante en programmation.
 Après tout, une fois que l'on a compris le fonctionnement des fonctions de base
@@ -485,3 +485,196 @@ contre, les descripteurs de fichiers sont exposés côté utilisateur, puisque
 ce sont eux que le programme passe en argument aux appels système `read`,
 `write` et `close` (et tout une palanquée d'autres dont nous nous garderons
 bien d'établir une liste aussi fastidieuse que superflue).
+
+Ainsi, de notre point de vue d'utilisateurs des facilités du noyau, ce sont
+surtout ces descripteurs de fichiers qui nous intéressent.
+
+### L'interaction à bas niveau avec les fichiers
+
+Nous allons travailler sur un exemple simple. Nous allons copier le fichier
+`menu` dont le contenu est le suivant :
+
+```
+$ cat menu
+* spam
+* eggs
+* bacon
+* spam
+* sausage
+* spam
+* ham
+```
+
+Pour cela, nous allons l'ouvrir, en lire le contenu, puis ouvrir un second
+fichier (qui n'existe pas encore) pour écrire le contenu à l'intérieur.
+
+Ouvrir un fichier à bas niveau se fait grâce à l'appel système `os.open()`.
+Cet appel système prend au minimum en argument :
+
+* le chemin vers le fichier,
+* un *flag* parmi :
+    * `os.O_RDONLY` pour ouvrir le fichier en lecture seule,
+    * `os.O_WRONLY` pour ouvrir le fichier en écriture seule,
+    * `os.O_RDWR` pour ouvrir le fichier à la fois en lecture et en écriture.
+
+Sa valeur de retour est, bien sûr, le descripteur de fichier qui aura été
+créé dans la table locale du processus.
+
+```python
+>>> fd = os.open("menu", os.O_RDONLY)
+>>> fd
+3
+```
+
+Comme vous le constatez, le fichier est associé au descripteur `3` dans la
+table des descripteurs de fichiers. Les fd `0`, `1` et `2` étant déjà occupés
+par les trois flux d'entrée/sortie standard du processus, que nous découvrirons
+plus loin.
+
+Pour lire des données dans un fichier, on appellera la fonction `os.read()` qui
+réalisera l'appel système du même nom, en lui passant en arguments :
+
+* le descripteur de fichier à lire,
+* le nombre d'octets que nous comptons lire. Ce nombre peut être supérieur à la
+  quantité de données restantes à lire dans le fichier, auquel cas la valeur
+retournée sera la totalité des données du fichier, ou bien inférieur, auquel
+cas un appel ultérieur nous permettra de continuer à lire les données.
+
+```python
+>>> data = os.read(fd, 4096)
+>>> data
+b'* spam\n* eggs\n* bacon\n* spam\n* sausage\n* spam\n* ham\n'
+```
+
+Remarquez que la fonction `read` nous a retourné ici un objet de type `bytes`
+et non une chaîne de caractères Unicode (`str`) : il s'agit de données brutes,
+non décodées.
+
+Ici, nous avons lu la totalité du contenu de notre fichier. Ainsi, si l'on
+appelle une nouvelle fois la fonction `read`, nous obtiendrons en retour une
+donnée vide :
+
+```python
+>>> os.read(fd, 4096)
+b''
+```
+
+Fermons notre fichier pour libérer le descripteur avec `os.close()` :
+
+```python
+>>> os.close(fd)
+```
+
+Bien, maintenant, ouvrons le fichier `copie` en écriture :
+
+```python
+>>> fd = os.open("copie", os.O_WRONLY)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: 'copie'
+```
+
+Python nous crache au visage que ce fichier n'existe pas. Contrairement à
+l'interface que vous connaissez déjà sûrement, l'appel système `open` ne va pas
+créer de nouveau fichier lorsque celui-ci n'existe pas. Et si celui-ci existe,
+il ne saura pas s'il doit l'effacer ou écrire à sa suite. C'est la raison pour
+laquelle les *flags* de cet appel système, lorsque l'on ouvre le fichier en
+écriture, doivent être combinés avec une ou plusieurs des valeurs suivantes :
+
+* `os.O_APPEND` : Écrire à la fin du fichier (en mode "ajout") si celui-ci
+  existe déjà,
+* `os.O_TRUNC` : Tronquer le fichier (supprimer ses données) si celui-ci existe
+  déjà,
+* `os.O_EXCL` : Échouer (en Python, lever une exception) si le fichier existe
+  déjà,
+* `os.O_CREAT`: Créer le fichier si celui-ci n'existe pas encore.
+
+Lorsque l'on utilise cette dernière valeur, il est également nécessaire de
+fournir un argument supplémentaire à `os.open` pour spécifier le `mode` du
+fichier créé, avec exactement la même sémantique que la fonction `os.chmod`.
+
+Ainsi, nous pouvons ouvrir ce nouveau fichier `copie` en écriture de la façon
+suivante :
+
+```python
+>>> fd = os.open("copie", os.O_WRONLY | os.O_CREAT | os.O_TRUNC, mode=0o640)
+>>> fd
+3
+```
+
+Remarquez que `fd` vaut ici une nouvelle fois 3 : le descripteur que nous avons
+fermé plus haut est réutilisé.
+
+Pour écrire des données dans ce nouveau fichier, rien de plus simple :
+
+```python
+>>> os.write(fd, data)
+52
+```
+
+La fonction nous retourne le nombre d'octets effectivement écrits dans le
+fichier, soit 52 (la taille de la donnée). Nous pouvons maintenant refermer le
+fichier pour éviter de charger inutilement la table des descripteurs et libérer
+la ressource.
+
+```python
+>>> os.close(fd)
+```
+
+Nous pouvons remarquer que le fichier `copie` a bien été créé, que j'en suis
+évidemment propriétaire puisque c'est moi qui l'ai créé, et qu'il s'agit bien
+d'une copie du `menu` :
+
+```
+$ ls -l copie
+-rw-r----- 1 arnaud arnaud 52 avril 26 21:57 copie
+$ cat copie
+* spam
+* eggs
+* bacon
+* spam
+* sausage
+* spam
+* ham
+```
+
+Rien de bien compliqué, en somme !
+
+Mais que sont donc ces trois descripteurs de fichier 0, 1 et 2 ?
+Conventionnellement, le système va attribuer à chaque processus trois *flux*
+standard :
+
+* `STDIN` (0) : L'entrée standard du processus, qui permet par exemple de lire des
+  données que l'utilisateur saisit au clavier,
+* `STDOUT` (1) : La sortie standard, que l'on utilise
+  conventionnellement pour afficher des données dans la console,
+* `STDERR` (2) : La sortie d'erreur standard, sur laquelle on écrit les
+  descriptions des erreurs lorsqu'elles se produisent.
+
+Ainsi, les FD 1 et 2 se comporteront comme des fichiers ouverts en écriture :
+
+```python
+>>> os.write(1, b'Hello, World!\n')
+Hello, World!
+14
+>>> os.write(2, b"Une erreur s'est produite\n")
+Une erreur s'est produite
+26
+```
+
+Quant à l'entrée standard, celle-ci peut être lue avec `read()`: faites l'essai
+en tapant du texte puis en validant avec la touche `<Entrée>`.
+
+```python
+>>> os.read(0, 4096)
+Ceci est une saisie au clavier.
+b'Ceci est une saisie au clavier.\n'
+```
+
+Comme vous le constatez, les "fichiers" que le noyau nous expose peuvent
+également être des abstractions pour le terminal, le clavier, ou un
+périphérique matériel ou d'autres choses encore… Je suppose que vous comprenez,
+maintenant, le potentiel des quatres fonctions que nous venons de voir.
+
+
+### L'interface haut niveau : les *file objects*
