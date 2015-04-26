@@ -64,7 +64,9 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <li><a href="#modifier-les-permissions-dun-fichier"><span class="toc-section-number">2.1.5</span> Modifier les permissions d'un fichier</a></li>
 </ul></li>
 <li><a href="#la-manipulation-des-flux-de-données-en-python"><span class="toc-section-number">2.2</span> La manipulation des flux de données en Python</a><ul>
-<li><a href="#inodes-descripteurs-de-fichiers-et-flux-de-données"><span class="toc-section-number">2.2.1</span> Inodes, descripteurs de fichiers et flux de données</a></li>
+<li><a href="#inodes-et-descripteurs-de-fichiers"><span class="toc-section-number">2.2.1</span> Inodes et descripteurs de fichiers</a></li>
+<li><a href="#linteraction-à-bas-niveau-avec-les-fichiers"><span class="toc-section-number">2.2.2</span> L'interaction à bas niveau avec les fichiers</a></li>
+<li><a href="#linterface-haut-niveau-les-file-objects"><span class="toc-section-number">2.2.3</span> L'interface haut niveau : les <em>file objects</em></a></li>
 </ul></li>
 </ul></li>
 <li><a href="#les-processus"><span class="toc-section-number">3</span> Les processus</a></li>
@@ -469,7 +471,7 @@ $ stat -c &quot;%A (%a) %U:%G&quot; monfichier
 <span class="co">&#39;-rw-rw-r--&#39;</span></code></pre>
 <h2 id="la-manipulation-des-flux-de-données-en-python"><a href="#la-manipulation-des-flux-de-données-en-python"><span class="header-section-number">2.2</span> La manipulation des flux de données en Python</a></h2>
 <p>Maintenant que nous avons une abstraction pour représenter les fichiers sur un périphérique de stockage, voyons un peu comment le noyau va présenter ces fichiers aux programmes qui sont en train de s'exécuter. Nous en profiterons au passage pour découvrir la couche d'abstaction supplémentaire que rajoute Python, pour étendre ce concept à tout ce qui ressemble de près ou de loin à un <em>flux de données</em>.</p>
-<h3 id="inodes-descripteurs-de-fichiers-et-flux-de-données"><a href="#inodes-descripteurs-de-fichiers-et-flux-de-données"><span class="header-section-number">2.2.1</span> Inodes, descripteurs de fichiers et flux de données</a></h3>
+<h3 id="inodes-et-descripteurs-de-fichiers"><a href="#inodes-et-descripteurs-de-fichiers"><span class="header-section-number">2.2.1</span> Inodes et descripteurs de fichiers</a></h3>
 <p>Bien sûr, manipuler des fichiers est une chose très courante en programmation. Après tout, une fois que l'on a compris le fonctionnement des fonctions de base <code>open()</code>, <code>read()</code>, <code>write()</code> et <code>close()</code>, on peut se dire qu'on a fait le tour de la question… La figure 2.3 montre qu'en réalité, ces quelques appels système ne sont que la partie émergée de l'iceberg, et qu'il y a bien plus à en dire que d'expliquer leur signature !</p>
 <figure>
 <img src="src/img/fd_table.png" alt="Accès aux fichiers en mémoire" /><figcaption>Accès aux fichiers en mémoire</figcaption>
@@ -479,6 +481,101 @@ $ stat -c &quot;%A (%a) %U:%G&quot; monfichier
 <p>Cette table des fichiers ouverts est globale à tous les processus qui tournent sur le système. Cela permet, dans certains cas particuliers, que plusieurs processus manipulent la même entrée de la table des fichiers ouverts, mais nous verrons ce genre de choses beaucoup plus loin dans ce cours.</p>
 <p>Le processus qui va chercher à manipuler ce fichier, quant à lui, dispose (côté noyau) d'une <em>table des descripteurs de fichiers</em>, qui associe, grosso-modo, un indice entier (le <strong>descripteur de fichier</strong>, qu'on abrègera FD dans la suite, pour <em>file descriptor</em>) à une entrée de la table des fichiers ouverts. Ce qu'il est intéressant de noter, c'est que cette table est <em>locale</em> au processus, tout comme les descripteurs de fichiers (puisque ce sont tout simplement les indices de cette table). Ainsi, comme le schéma nous le montre, on peut très bien avoir un programme ayant ouvert un fichier et que le noyau aura placé dans l'entrée numéro 5 de sa table des FD, et un second programme qui aura ouvert le même fichier mais en l'associant localement au FD 12.</p>
 <p>Le fait que la table des descripteurs des fichiers du processus se trouve <em>côté noyau</em> n'est pas anodin, puisque ça signifie qu'on ne peut pas la manipuler directement (et donc que l'on ne peut pas faire n'importe quoi avec). Par contre, les descripteurs de fichiers sont exposés côté utilisateur, puisque ce sont eux que le programme passe en argument aux appels système <code>read</code>, <code>write</code> et <code>close</code> (et tout une palanquée d'autres dont nous nous garderons bien d'établir une liste aussi fastidieuse que superflue).</p>
+<p>Ainsi, de notre point de vue d'utilisateurs des facilités du noyau, ce sont surtout ces descripteurs de fichiers qui nous intéressent.</p>
+<h3 id="linteraction-à-bas-niveau-avec-les-fichiers"><a href="#linteraction-à-bas-niveau-avec-les-fichiers"><span class="header-section-number">2.2.2</span> L'interaction à bas niveau avec les fichiers</a></h3>
+<p>Nous allons travailler sur un exemple simple. Nous allons copier le fichier <code>menu</code> dont le contenu est le suivant :</p>
+<pre><code>$ cat menu
+* spam
+* eggs
+* bacon
+* spam
+* sausage
+* spam
+* ham</code></pre>
+<p>Pour cela, nous allons l'ouvrir, en lire le contenu, puis ouvrir un second fichier (qui n'existe pas encore) pour écrire le contenu à l'intérieur.</p>
+<p>Ouvrir un fichier à bas niveau se fait grâce à l'appel système <code>os.open()</code>. Cet appel système prend au minimum en argument :</p>
+<ul>
+<li>le chemin vers le fichier,</li>
+<li>un <em>flag</em> parmi :
+<ul>
+<li><code>os.O_RDONLY</code> pour ouvrir le fichier en lecture seule,</li>
+<li><code>os.O_WRONLY</code> pour ouvrir le fichier en écriture seule,</li>
+<li><code>os.O_RDWR</code> pour ouvrir le fichier à la fois en lecture et en écriture.</li>
+</ul></li>
+</ul>
+<p>Sa valeur de retour est, bien sûr, le descripteur de fichier qui aura été créé dans la table locale du processus.</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; fd = os.<span class="dt">open</span>(<span class="st">&quot;menu&quot;</span>, os.O_RDONLY)
+&gt;&gt;&gt; fd
+<span class="dv">3</span></code></pre>
+<p>Comme vous le constatez, le fichier est associé au descripteur <code>3</code> dans la table des descripteurs de fichiers. Les fd <code>0</code>, <code>1</code> et <code>2</code> étant déjà occupés par les trois flux d'entrée/sortie standard du processus, que nous découvrirons plus loin.</p>
+<p>Pour lire des données dans un fichier, on appellera la fonction <code>os.read()</code> qui réalisera l'appel système du même nom, en lui passant en arguments :</p>
+<ul>
+<li>le descripteur de fichier à lire,</li>
+<li>le nombre d'octets que nous comptons lire. Ce nombre peut être supérieur à la quantité de données restantes à lire dans le fichier, auquel cas la valeur retournée sera la totalité des données du fichier, ou bien inférieur, auquel cas un appel ultérieur nous permettra de continuer à lire les données.</li>
+</ul>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; data = os.read(fd, <span class="dv">4096</span>)
+&gt;&gt;&gt; data
+b<span class="st">&#39;* spam</span><span class="ch">\n</span><span class="st">* eggs</span><span class="ch">\n</span><span class="st">* bacon</span><span class="ch">\n</span><span class="st">* spam</span><span class="ch">\n</span><span class="st">* sausage</span><span class="ch">\n</span><span class="st">* spam</span><span class="ch">\n</span><span class="st">* ham</span><span class="ch">\n</span><span class="st">&#39;</span></code></pre>
+<p>Remarquez que la fonction <code>read</code> nous a retourné ici un objet de type <code>bytes</code> et non une chaîne de caractères Unicode (<code>str</code>) : il s'agit de données brutes, non décodées.</p>
+<p>Ici, nous avons lu la totalité du contenu de notre fichier. Ainsi, si l'on appelle une nouvelle fois la fonction <code>read</code>, nous obtiendrons en retour une donnée vide :</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; os.read(fd, <span class="dv">4096</span>)
+b<span class="st">&#39;&#39;</span></code></pre>
+<p>Fermons notre fichier pour libérer le descripteur avec <code>os.close()</code> :</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; os.close(fd)</code></pre>
+<p>Bien, maintenant, ouvrons le fichier <code>copie</code> en écriture :</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; fd = os.<span class="dt">open</span>(<span class="st">&quot;copie&quot;</span>, os.O_WRONLY)
+Traceback (most recent call last):
+  File <span class="st">&quot;&lt;stdin&gt;&quot;</span>, line <span class="dv">1</span>, in &lt;module&gt;
+<span class="ot">FileNotFoundError</span>: [Errno <span class="dv">2</span>] No such <span class="dt">file</span> or directory: <span class="st">&#39;copie&#39;</span></code></pre>
+<p>Python nous crache au visage que ce fichier n'existe pas. Contrairement à l'interface que vous connaissez déjà sûrement, l'appel système <code>open</code> ne va pas créer de nouveau fichier lorsque celui-ci n'existe pas. Et si celui-ci existe, il ne saura pas s'il doit l'effacer ou écrire à sa suite. C'est la raison pour laquelle les <em>flags</em> de cet appel système, lorsque l'on ouvre le fichier en écriture, doivent être combinés avec une ou plusieurs des valeurs suivantes :</p>
+<ul>
+<li><code>os.O_APPEND</code> : Écrire à la fin du fichier (en mode &quot;ajout&quot;) si celui-ci existe déjà,</li>
+<li><code>os.O_TRUNC</code> : Tronquer le fichier (supprimer ses données) si celui-ci existe déjà,</li>
+<li><code>os.O_EXCL</code> : Échouer (en Python, lever une exception) si le fichier existe déjà,</li>
+<li><code>os.O_CREAT</code>: Créer le fichier si celui-ci n'existe pas encore.</li>
+</ul>
+<p>Lorsque l'on utilise cette dernière valeur, il est également nécessaire de fournir un argument supplémentaire à <code>os.open</code> pour spécifier le <code>mode</code> du fichier créé, avec exactement la même sémantique que la fonction <code>os.chmod</code>.</p>
+<p>Ainsi, nous pouvons ouvrir ce nouveau fichier <code>copie</code> en écriture de la façon suivante :</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; fd = os.<span class="dt">open</span>(<span class="st">&quot;copie&quot;</span>, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, mode=<span class="bn">0o640</span>)
+&gt;&gt;&gt; fd
+<span class="dv">3</span></code></pre>
+<p>Remarquez que <code>fd</code> vaut ici une nouvelle fois 3 : le descripteur que nous avons fermé plus haut est réutilisé.</p>
+<p>Pour écrire des données dans ce nouveau fichier, rien de plus simple :</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; os.write(fd, data)
+<span class="dv">52</span></code></pre>
+<p>La fonction nous retourne le nombre d'octets effectivement écrits dans le fichier, soit 52 (la taille de la donnée). Nous pouvons maintenant refermer le fichier pour éviter de charger inutilement la table des descripteurs et libérer la ressource.</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; os.close(fd)</code></pre>
+<p>Nous pouvons remarquer que le fichier <code>copie</code> a bien été créé, que j'en suis évidemment propriétaire puisque c'est moi qui l'ai créé, et qu'il s'agit bien d'une copie du <code>menu</code> :</p>
+<pre><code>$ ls -l copie
+-rw-r----- 1 arnaud arnaud 52 avril 26 21:57 copie
+$ cat copie
+* spam
+* eggs
+* bacon
+* spam
+* sausage
+* spam
+* ham</code></pre>
+<p>Rien de bien compliqué, en somme !</p>
+<p>Mais que sont donc ces trois descripteurs de fichier 0, 1 et 2 ? Conventionnellement, le système va attribuer à chaque processus trois <em>flux</em> standard :</p>
+<ul>
+<li><code>STDIN</code> (0) : L'entrée standard du processus, qui permet par exemple de lire des données que l'utilisateur saisit au clavier,</li>
+<li><code>STDOUT</code> (1) : La sortie standard, que l'on utilise conventionnellement pour afficher des données dans la console,</li>
+<li><code>STDERR</code> (2) : La sortie d'erreur standard, sur laquelle on écrit les descriptions des erreurs lorsqu'elles se produisent.</li>
+</ul>
+<p>Ainsi, les FD 1 et 2 se comporteront comme des fichiers ouverts en écriture :</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; os.write(<span class="dv">1</span>, b<span class="st">&#39;Hello, World!</span><span class="ch">\n</span><span class="st">&#39;</span>)
+Hello, World!
+<span class="dv">14</span>
+&gt;&gt;&gt; os.write(<span class="dv">2</span>, b<span class="st">&quot;Une erreur s&#39;est produite</span><span class="ch">\n</span><span class="st">&quot;</span>)
+Une erreur s<span class="st">&#39;est produite</span>
+<span class="st">26</span></code></pre>
+<p>Quant à l'entrée standard, celle-ci peut être lue avec <code>read()</code>: faites l'essai en tapant du texte puis en validant avec la touche <code>&lt;Entrée&gt;</code>.</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; os.read(<span class="dv">0</span>, <span class="dv">4096</span>)
+Ceci est une saisie au clavier.
+b<span class="st">&#39;Ceci est une saisie au clavier.</span><span class="ch">\n</span><span class="st">&#39;</span></code></pre>
+<p>Comme vous le constatez, les &quot;fichiers&quot; que le noyau nous expose peuvent également être des abstractions pour le terminal, le clavier, ou un périphérique matériel ou d'autres choses encore… Je suppose que vous comprenez, maintenant, le potentiel des quatres fonctions que nous venons de voir.</p>
+<h3 id="linterface-haut-niveau-les-file-objects"><a href="#linterface-haut-niveau-les-file-objects"><span class="header-section-number">2.2.3</span> L'interface haut niveau : les <em>file objects</em></a></h3>
 <h1 id="les-processus"><a href="#les-processus"><span class="header-section-number">3</span> Les processus</a></h1>
 <h1 id="le-parallélisme-multi-processus"><a href="#le-parallélisme-multi-processus"><span class="header-section-number">4</span> Le Parallélisme multi-processus</a></h1>
 <h1 id="les-threads"><a href="#les-threads"><span class="header-section-number">5</span> Les threads</a></h1>
