@@ -388,7 +388,7 @@ L'autre syntaxe acceptée par `chmod` consiste à spécifier :
   l'exécution)
 
 Par exemple, pour rajouter les droits en exécution au propriétaire et ceux en
-lecture au groupe et aux autres :
+écriture au groupe et aux autres :
 
 ```
 $ chmod u+x,go+w monfichier
