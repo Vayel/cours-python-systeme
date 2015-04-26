@@ -61,7 +61,9 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <li><a href="#la-représentation-bas-niveau-les-inodes"><span class="toc-section-number">2.1.2</span> La représentation bas niveau : les <em>inodes</em></a></li>
 <li><a href="#lappel-système-stat-lire-le-contenu-des-inodes"><span class="toc-section-number">2.1.3</span> L'appel système <code>stat</code> : lire le contenu des inodes</a></li>
 <li><a href="#type-et-permissions-dun-fichier"><span class="toc-section-number">2.1.4</span> Type et permissions d'un fichier</a></li>
+<li><a href="#modifier-les-permissions-dun-fichier"><span class="toc-section-number">2.1.5</span> Modifier les permissions d'un fichier</a></li>
 </ul></li>
+<li><a href="#les-file-like-objects-en-python"><span class="toc-section-number">2.2</span> Les &quot;<em>file-like objects</em>&quot; en Python</a></li>
 </ul></li>
 <li><a href="#fichiers-et-flux-de-données"><span class="toc-section-number">3</span> Fichiers et flux de données</a></li>
 <li><a href="#les-processus"><span class="toc-section-number">4</span> Les processus</a></li>
@@ -429,6 +431,42 @@ os.stat_result(st_mode=<span class="dv">33204</span>, st_ino=<span class="dv">64
 <li><code>S_IFDIR</code>: l'inode désigne un <em>répertoire</em>, représenté par le préfixe <code>d</code>.</li>
 </ul>
 <p>Il existe encore (plein) d'autres flags et d'autres informations encodées dans ce champ <code>st_mode</code>, mais nous allons nous contenter de ceux-ci pour l'instant<a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a>. Nous découvrirons toutes les autres au fur et à mesure que nous toucherons dans ce cours aux notions qu'elles font intervenir, promis !</p>
+<h3 id="modifier-les-permissions-dun-fichier"><a href="#modifier-les-permissions-dun-fichier"><span class="header-section-number">2.1.5</span> Modifier les permissions d'un fichier</a></h3>
+<p>J'ai mentionné un peu plus haut la commande <code>chmod</code>. Voyons comment l'utiliser (ainsi que la fonction Python équivalente, évidemment).</p>
+<p>Créons un fichier vide pour faire nos tests.</p>
+<pre><code>$ touch monfichier
+$ stat -c &quot;%A (%a) %U:%G&quot; monfichier
+-rw-rw-r-- (664) arnaud:arnaud</code></pre>
+<p>L'option &quot;<code>-c &quot;%A (%a) %U:%G&quot;</code>&quot; de la commande <code>stat</code> sert à lui dire que je veux afficher uniquement les droits (en version lisible puis en octal), le propriétaire et le groupe du fichier.</p>
+<p>La façon la plus frontale de modifier les droits d'un fichier sera de passer à <code>chmod</code> la valeur octale du masque de droits. Par exemple, si je souhaite retirer les droits en écriture au groupe, je vais calculer le nouveau masque en prenant l'actuel (0664) auquel je retranche la valeur de <code>S_IRGRP</code> (0020), ce qui me donne 0644 :</p>
+<pre><code>$ chmod 644 monfichier
+$ stat -c &quot;%A (%a) %U:%G&quot; monfichier
+-rw-r--r-- (644) arnaud:arnaud</code></pre>
+<p>L'autre syntaxe acceptée par <code>chmod</code> consiste à spécifier :</p>
+<ul>
+<li>le(s) type(s) d'utilisateur(s) (<code>u</code> pour le propriétaire, <code>g</code> pour le groupe et <code>o</code> pour les autres),</li>
+<li>l'ajout (<code>+</code>) ou le retrait (<code>-</code>) du droit,</li>
+<li>la valeur du droit (<code>r</code> pour la lecture, <code>w</code> pour l'écriture, <code>x</code> pour l'exécution)</li>
+</ul>
+<p>Par exemple, pour rajouter les droits en exécution au propriétaire et ceux en lecture au groupe et aux autres :</p>
+<pre><code>$ chmod u+x,go+w monfichier
+$ stat -c &quot;%A (%a) %U:%G&quot; monfichier
+-rwxrw-rw- (766) arnaud:arnaud</code></pre>
+<p>Oh et puis non, en fait, je ne veux pas exécuter ce fichier ni que les autres le lisent ni écrivent dedans, finalement :</p>
+<pre><code>$ chmod u-x,o-rw monfichier
+$ stat -c &quot;%A (%a) %U:%G&quot; monfichier
+-rw-rw---- (660) arnaud:arnaud</code></pre>
+<p>En Python, cependant, cette syntaxe <em>user-friendly</em> n'existe pas. La fonction <code>os.chmod()</code> n'accepte que la valeur du masque, que vous pouvez spécifier soit de façon verbeuse en assemblant celui-ci via les flags du module <code>stat</code>.</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; os.chmod(<span class="st">&quot;monfichier&quot;</span>,
+...       stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP
+... )
+&gt;&gt;&gt; stat.filemode(os.stat(<span class="st">&quot;monfichier&quot;</span>).st_mode)
+<span class="co">&#39;-rw-r-----&#39;</span></code></pre>
+<p>Soit, ce que personnellement je trouve beaucoup plus simple, en utilisant directement la valeur octale :</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; os.chmod(<span class="st">&quot;monfichier&quot;</span>, <span class="bn">0o664</span>)
+&gt;&gt;&gt; stat.filemode(os.stat(<span class="st">&quot;monfichier&quot;</span>).st_mode)
+<span class="co">&#39;-rw-rw-r--&#39;</span></code></pre>
+<h2 id="les-file-like-objects-en-python"><a href="#les-file-like-objects-en-python"><span class="header-section-number">2.2</span> Les &quot;<em>file-like objects</em>&quot; en Python</a></h2>
 <h1 id="fichiers-et-flux-de-données"><a href="#fichiers-et-flux-de-données"><span class="header-section-number">3</span> Fichiers et flux de données</a></h1>
 <h1 id="les-processus"><a href="#les-processus"><span class="header-section-number">4</span> Les processus</a></h1>
 <h1 id="le-parallélisme-multi-processus"><a href="#le-parallélisme-multi-processus"><span class="header-section-number">5</span> Le Parallélisme multi-processus</a></h1>
