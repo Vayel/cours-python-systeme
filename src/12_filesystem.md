@@ -349,3 +349,81 @@ RTFM !  `man 2 stat` vous donnera la page du "*fucking manual*" à propos de l'
 `stat`. Alternativement, [la documentation du module Python
 `stat`](https://docs.python.org/3.4/library/stat.html) vous dira...
 la même chose, en fait, mais sans vous préciser quels bits sont concernés.
+
+### Modifier les permissions d'un fichier
+
+J'ai mentionné un peu plus haut la commande `chmod`. Voyons comment l'utiliser
+(ainsi que la fonction Python équivalente, évidemment).
+
+Créons un fichier vide pour faire nos tests.
+
+```
+$ touch monfichier
+$ stat -c "%A (%a) %U:%G" monfichier
+-rw-rw-r-- (664) arnaud:arnaud
+```
+
+L'option "`-c "%A (%a) %U:%G"`" de la commande `stat` sert à lui dire que je
+veux afficher uniquement les droits (en version lisible puis en octal), le
+propriétaire et le groupe du fichier.
+
+La façon la plus frontale de modifier les droits d'un fichier sera de passer à
+`chmod` la valeur octale du masque de droits. Par exemple, si je souhaite
+retirer les droits en écriture au groupe, je vais calculer le nouveau masque en
+prenant l'actuel (0664) auquel je retranche la valeur de `S_IRGRP` (0020), ce
+qui me donne 0644 :
+
+```
+$ chmod 644 monfichier
+$ stat -c "%A (%a) %U:%G" monfichier
+-rw-r--r-- (644) arnaud:arnaud
+```
+
+L'autre syntaxe acceptée par `chmod` consiste à spécifier :
+
+* le(s) type(s) d'utilisateur(s) (`u` pour le propriétaire, `g` pour le groupe
+  et `o` pour les autres),
+* l'ajout (`+`) ou le retrait (`-`) du droit,
+* la valeur du droit (`r` pour la lecture, `w` pour l'écriture, `x` pour
+  l'exécution)
+
+Par exemple, pour rajouter les droits en exécution au propriétaire et ceux en
+lecture au groupe et aux autres :
+
+```
+$ chmod u+x,go+w monfichier
+$ stat -c "%A (%a) %U:%G" monfichier
+-rwxrw-rw- (766) arnaud:arnaud
+```
+
+Oh et puis non, en fait, je ne veux pas exécuter ce fichier ni que les autres
+le lisent ni écrivent dedans, finalement :
+
+```
+$ chmod u-x,o-rw monfichier
+$ stat -c "%A (%a) %U:%G" monfichier
+-rw-rw---- (660) arnaud:arnaud
+```
+
+En Python, cependant, cette syntaxe *user-friendly* n'existe pas. La fonction
+`os.chmod()` n'accepte que la valeur du masque, que vous pouvez spécifier soit
+de façon verbeuse en assemblant celui-ci via les flags du module `stat`.
+
+```python
+>>> os.chmod("monfichier",
+...       stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP
+... )
+>>> stat.filemode(os.stat("monfichier").st_mode)
+'-rw-r-----'
+```
+
+Soit, ce que personnellement je trouve beaucoup plus simple, en utilisant
+directement la valeur octale :
+
+```python
+>>> os.chmod("monfichier", 0o664)
+>>> stat.filemode(os.stat("monfichier").st_mode)
+'-rw-rw-r--'
+```
+
+## Les "*file-like objects*" en Python
