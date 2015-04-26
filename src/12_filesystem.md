@@ -426,4 +426,15 @@ directement la valeur octale :
 '-rw-rw-r--'
 ```
 
-## Les "*file-like objects*" en Python
+## La manipulation des flux de données en Python
+
+Maintenant que nous avons une abstraction pour représenter les fichiers sur un
+périphérique de stockage, voyons un peu comment le noyau va présenter ces
+fichiers aux programmes qui sont en train de s'exécuter. Nous en profiterons au
+passage pour découvrir la couche d'abstaction supplémentaire que rajoute
+Python, pour étendre ce concept à tout ce qui ressemble de près ou de loin à un
+*flux de données*.
+
+### Inodes, descripteurs de fichiers et flux de données
+
+![Accès aux fichiers en mémoire](src/img/fd_table.png)
