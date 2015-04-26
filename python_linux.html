@@ -63,12 +63,13 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <li><a href="#type-et-permissions-dun-fichier"><span class="toc-section-number">2.1.4</span> Type et permissions d'un fichier</a></li>
 <li><a href="#modifier-les-permissions-dun-fichier"><span class="toc-section-number">2.1.5</span> Modifier les permissions d'un fichier</a></li>
 </ul></li>
-<li><a href="#les-file-like-objects-en-python"><span class="toc-section-number">2.2</span> Les &quot;<em>file-like objects</em>&quot; en Python</a></li>
+<li><a href="#la-manipulation-des-flux-de-données-en-python"><span class="toc-section-number">2.2</span> La manipulation des flux de données en Python</a><ul>
+<li><a href="#inodes-descripteurs-de-fichiers-et-flux-de-données"><span class="toc-section-number">2.2.1</span> Inodes, descripteurs de fichiers et flux de données</a></li>
 </ul></li>
-<li><a href="#fichiers-et-flux-de-données"><span class="toc-section-number">3</span> Fichiers et flux de données</a></li>
-<li><a href="#les-processus"><span class="toc-section-number">4</span> Les processus</a></li>
-<li><a href="#le-parallélisme-multi-processus"><span class="toc-section-number">5</span> Le Parallélisme multi-processus</a></li>
-<li><a href="#les-threads"><span class="toc-section-number">6</span> Les threads</a></li>
+</ul></li>
+<li><a href="#les-processus"><span class="toc-section-number">3</span> Les processus</a></li>
+<li><a href="#le-parallélisme-multi-processus"><span class="toc-section-number">4</span> Le Parallélisme multi-processus</a></li>
+<li><a href="#les-threads"><span class="toc-section-number">5</span> Les threads</a></li>
 </ul>
 </nav>
 <h1 id="avant-propos" class="unnumbered"><a href="#avant-propos">Avant-propos</a></h1>
@@ -448,7 +449,7 @@ $ stat -c &quot;%A (%a) %U:%G&quot; monfichier
 <li>l'ajout (<code>+</code>) ou le retrait (<code>-</code>) du droit,</li>
 <li>la valeur du droit (<code>r</code> pour la lecture, <code>w</code> pour l'écriture, <code>x</code> pour l'exécution)</li>
 </ul>
-<p>Par exemple, pour rajouter les droits en exécution au propriétaire et ceux en lecture au groupe et aux autres :</p>
+<p>Par exemple, pour rajouter les droits en exécution au propriétaire et ceux en écriture au groupe et aux autres :</p>
 <pre><code>$ chmod u+x,go+w monfichier
 $ stat -c &quot;%A (%a) %U:%G&quot; monfichier
 -rwxrw-rw- (766) arnaud:arnaud</code></pre>
@@ -466,11 +467,21 @@ $ stat -c &quot;%A (%a) %U:%G&quot; monfichier
 <pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; os.chmod(<span class="st">&quot;monfichier&quot;</span>, <span class="bn">0o664</span>)
 &gt;&gt;&gt; stat.filemode(os.stat(<span class="st">&quot;monfichier&quot;</span>).st_mode)
 <span class="co">&#39;-rw-rw-r--&#39;</span></code></pre>
-<h2 id="les-file-like-objects-en-python"><a href="#les-file-like-objects-en-python"><span class="header-section-number">2.2</span> Les &quot;<em>file-like objects</em>&quot; en Python</a></h2>
-<h1 id="fichiers-et-flux-de-données"><a href="#fichiers-et-flux-de-données"><span class="header-section-number">3</span> Fichiers et flux de données</a></h1>
-<h1 id="les-processus"><a href="#les-processus"><span class="header-section-number">4</span> Les processus</a></h1>
-<h1 id="le-parallélisme-multi-processus"><a href="#le-parallélisme-multi-processus"><span class="header-section-number">5</span> Le Parallélisme multi-processus</a></h1>
-<h1 id="les-threads"><a href="#les-threads"><span class="header-section-number">6</span> Les threads</a></h1>
+<h2 id="la-manipulation-des-flux-de-données-en-python"><a href="#la-manipulation-des-flux-de-données-en-python"><span class="header-section-number">2.2</span> La manipulation des flux de données en Python</a></h2>
+<p>Maintenant que nous avons une abstraction pour représenter les fichiers sur un périphérique de stockage, voyons un peu comment le noyau va présenter ces fichiers aux programmes qui sont en train de s'exécuter. Nous en profiterons au passage pour découvrir la couche d'abstaction supplémentaire que rajoute Python, pour étendre ce concept à tout ce qui ressemble de près ou de loin à un <em>flux de données</em>.</p>
+<h3 id="inodes-descripteurs-de-fichiers-et-flux-de-données"><a href="#inodes-descripteurs-de-fichiers-et-flux-de-données"><span class="header-section-number">2.2.1</span> Inodes, descripteurs de fichiers et flux de données</a></h3>
+<p>Bien sûr, manipuler des fichiers est une chose très courante en programmation. Après tout, une fois que l'on a compris le fonctionnement des fonctions de base <code>open()</code>, <code>read()</code>, <code>write()</code> et <code>close()</code>, on peut se dire qu'on a fait le tour de la question… La figure 2.3 montre qu'en réalité, ces quelques appels système ne sont que la partie émergée de l'iceberg, et qu'il y a bien plus à en dire que d'expliquer leur signature !</p>
+<figure>
+<img src="src/img/fd_table.png" alt="Accès aux fichiers en mémoire" /><figcaption>Accès aux fichiers en mémoire</figcaption>
+</figure>
+<p>Alors, que se passe-t'il <em>réellement</em> lorsque vous ouvrez un fichier dans un programme ?</p>
+<p>Pour commencer, le noyau va aller chercher l'inode correspondant dans le système de fichiers. Une fois qu'il a trouvé cet inode (disque), il va le charger en mémoire. Ensuite, il va rajouter une entrée dans sa <em>table des fichiers ouverts</em>, qui contient en particulier un pointeur sur cet inode (mémoire). Cette entrée va également contenir d'autres données intéressantes, comme le <em>mode d'ouverture</em> du fichier (lecture, écriture, ajout...) et un indicateur de position (pour savoir où le processus<a href="#fn7" class="footnoteRef" id="fnref7"><sup>7</sup></a> en est dans la lecture du fichier).</p>
+<p>Cette table des fichiers ouverts est globale à tous les processus qui tournent sur le système. Cela permet, dans certains cas particuliers, que plusieurs processus manipulent la même entrée de la table des fichiers ouverts, mais nous verrons ce genre de choses beaucoup plus loin dans ce cours.</p>
+<p>Le processus qui va chercher à manipuler ce fichier, quant à lui, dispose (côté noyau) d'une <em>table des descripteurs de fichiers</em>, qui associe, grosso-modo, un indice entier (le <strong>descripteur de fichier</strong>, qu'on abrègera FD dans la suite, pour <em>file descriptor</em>) à une entrée de la table des fichiers ouverts. Ce qu'il est intéressant de noter, c'est que cette table est <em>locale</em> au processus, tout comme les descripteurs de fichiers (puisque ce sont tout simplement les indices de cette table). Ainsi, comme le schéma nous le montre, on peut très bien avoir un programme ayant ouvert un fichier et que le noyau aura placé dans l'entrée numéro 5 de sa table des FD, et un second programme qui aura ouvert le même fichier mais en l'associant localement au FD 12.</p>
+<p>Le fait que la table des descripteurs des fichiers du processus se trouve <em>côté noyau</em> n'est pas anodin, puisque ça signifie qu'on ne peut pas la manipuler directement (et donc que l'on ne peut pas faire n'importe quoi avec). Par contre, les descripteurs de fichiers sont exposés côté utilisateur, puisque ce sont eux que le programme passe en argument aux appels système <code>read</code>, <code>write</code> et <code>close</code> (et tout une palanquée d'autres dont nous nous garderons bien d'établir une liste aussi fastidieuse que superflue).</p>
+<h1 id="les-processus"><a href="#les-processus"><span class="header-section-number">3</span> Les processus</a></h1>
+<h1 id="le-parallélisme-multi-processus"><a href="#le-parallélisme-multi-processus"><span class="header-section-number">4</span> Le Parallélisme multi-processus</a></h1>
+<h1 id="les-threads"><a href="#les-threads"><span class="header-section-number">5</span> Les threads</a></h1>
 <section class="footnotes">
 <hr />
 <ol>
@@ -480,6 +491,7 @@ $ stat -c &quot;%A (%a) %U:%G&quot; monfichier
 <li id="fn4"><p>Il y a une explication très simple à cela. Les opérateurs bit-à-bit sont extrêmement rapides en C car les microprocesseurs savent les exécuter en une seule opération, mais pas en Python où les opérations sur les entiers, quelles qu'elles soient, sont comparativement très lentes.<a href="#fnref4">↩</a></p></li>
 <li id="fn5"><p>RTFM ! Non, je plaisante, on va en parler juste après. ;)<a href="#fnref5">↩</a></p></li>
 <li id="fn6"><p>Par contre, si vous êtes curieux et voulez absolument en avoir un aperçu dès maintenant, alors cette fois je vous le dis très sérieusement : RTFM ! <code>man 2 stat</code> vous donnera la page du &quot;<em>fucking manual</em>&quot; à propos de l'appel système <code>stat</code>. Alternativement, <a href="https://docs.python.org/3.4/library/stat.html">la documentation du module Python <code>stat</code></a> vous dira... la même chose, en fait, mais sans vous préciser quels bits sont concernés.<a href="#fnref6">↩</a></p></li>
+<li id="fn7"><p>Nous n'avons pas encore vu la notion de <em>processus</em> dans ce cours. Si cela vous perturbe, considérez qu'un processus est une instance d'un programme qui est en train de tourner sur l'ordinateur.<a href="#fnref7">↩</a></p></li>
 </ol>
 </section>
 </body>
