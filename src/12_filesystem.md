@@ -678,3 +678,69 @@ maintenant, le potentiel des quatres fonctions que nous venons de voir.
 
 
 ### L'interface haut niveau : les *file objects*
+
+Dans « la vraie vie », on n'a jamais besoin d'utiliser les quatre appels
+système que nous venons d'évoquer en Python. Et pour cause ! Celui-ci expose au
+développeur une interface beaucoup plus confortable pour manipuler des
+fichiers. Cette interface consiste à envelopper un *file descriptor*  dans ce
+que Python nomme un *file-like object*, et est implémentée dans le module
+standard [`io`](https://docs.python.org/3.4/library/io.html).
+
+C'est dans ce module en particulier que réside l'implémentation de la fonction
+*builtin* `open()`. Contrairement à l'appel système du même nom (qu'elle
+abstrait pour nous), son comportement est *souple* : nul besoin de lui
+spécifier un ensemble de flags complexes pour décider quoi faire, puisqu'elle
+adopte un comportement par défaut qui répond aux besoins les plus courants.
+Nous ne détaillerons pas la totalité de son comportement ici, un simple
+`help(open)` vous fournira sa documentation complète. Cela dit, la différence
+majeure entre cette fonction à haut niveau et les appels système qu'elle
+englobe est qu'elle présuppose deux types d'interactions différents avec les
+fichiers :
+
+* l'interaction en mode **texte**,
+* l'interaction en mode **binaire**.
+
+Le mode d'ouverture le plus proche de l'appel système est sans doute le mode
+binaire. En effet, ce mode permet de lire ou écrire des données brutes
+(représentées par des objets `bytes`).
+
+Par exemple, utilisons ce mode d'interaction pour lire le fichier `menu` de
+l'exemple précédent.
+
+```python
+>>> fobj = open('menu', 'rb')
+>>> data = fobj.read()
+>>> data
+b'* spam\n* eggs\n* bacon\n* spam\n* sausage\n* spam\n* ham\n'
+```
+
+Pour rappel, le mode `'rb'` que l'on a passé à cette fonction signifie :
+
+* `'r'` : le fichier est ouvert en lecture (*reading*)
+* `'b'` : le fichier est ouvert en mode binaire (*binary*)
+
+En appelant la méthode `read()` de cet objet (sans lui spécifier une taille de
+buffer), nous avons lu la totalité de son contenu qu'il nous a retourné dans un
+objet `bytes`.
+
+Si nous souhaitons exploiter cette donnée, il nous faudrait bien sûr la
+convertir en une chaîne de caractères Unicode, en la décodant.
+
+Ce genre de traitement étant particulièrement courant, Python permet, par
+défaut, d'ouvrir les fichiers "en mode texte", pour nous épargner la plupart
+des tâches répétitives.
+
+```python
+>>> fobj = open('menu', 'r')
+>>> data = fobj.read()
+>>> data
+'* spam\n* eggs\n* bacon\n* spam\n* sausage\n* spam\n* ham\n'
+```
+
+Cela peut paraître absolument enfantin (pour l'utilisateur, en tout cas, ça
+l'est !), mais maintenant que vous savez que Python est obligé de passer par
+l'appel système `open` lorsqu'il va ouvrir notre fichier en mode texte,
+*pouvez-vous deviner l'ensemble des opérations supplémentaires qu'il réalise en
+plus de l'appel système pour avoir ce comportement ?*
+
+
