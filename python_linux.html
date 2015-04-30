@@ -576,6 +576,31 @@ Ceci est une saisie au clavier.
 b<span class="st">&#39;Ceci est une saisie au clavier.</span><span class="ch">\n</span><span class="st">&#39;</span></code></pre>
 <p>Comme vous le constatez, les &quot;fichiers&quot; que le noyau nous expose peuvent également être des abstractions pour le terminal, le clavier, ou un périphérique matériel ou d'autres choses encore… Je suppose que vous comprenez, maintenant, le potentiel des quatres fonctions que nous venons de voir.</p>
 <h3 id="linterface-haut-niveau-les-file-objects"><a href="#linterface-haut-niveau-les-file-objects"><span class="header-section-number">2.2.3</span> L'interface haut niveau : les <em>file objects</em></a></h3>
+<p>Dans « la vraie vie », on n'a jamais besoin d'utiliser les quatre appels système que nous venons d'évoquer en Python. Et pour cause ! Celui-ci expose au développeur une interface beaucoup plus confortable pour manipuler des fichiers. Cette interface consiste à envelopper un <em>file descriptor</em> dans ce que Python nomme un <em>file-like object</em>, et est implémentée dans le module standard <a href="https://docs.python.org/3.4/library/io.html"><code>io</code></a>.</p>
+<p>C'est dans ce module en particulier que réside l'implémentation de la fonction <em>builtin</em> <code>open()</code>. Contrairement à l'appel système du même nom (qu'elle abstrait pour nous), son comportement est <em>souple</em> : nul besoin de lui spécifier un ensemble de flags complexes pour décider quoi faire, puisqu'elle adopte un comportement par défaut qui répond aux besoins les plus courants. Nous ne détaillerons pas la totalité de son comportement ici, un simple <code>help(open)</code> vous fournira sa documentation complète. Cela dit, la différence majeure entre cette fonction à haut niveau et les appels système qu'elle englobe est qu'elle présuppose deux types d'interactions différents avec les fichiers :</p>
+<ul>
+<li>l'interaction en mode <strong>texte</strong>,</li>
+<li>l'interaction en mode <strong>binaire</strong>.</li>
+</ul>
+<p>Le mode d'ouverture le plus proche de l'appel système est sans doute le mode binaire. En effet, ce mode permet de lire ou écrire des données brutes (représentées par des objets <code>bytes</code>).</p>
+<p>Par exemple, utilisons ce mode d'interaction pour lire le fichier <code>menu</code> de l'exemple précédent.</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; fobj = <span class="dt">open</span>(<span class="st">&#39;menu&#39;</span>, <span class="st">&#39;rb&#39;</span>)
+&gt;&gt;&gt; data = fobj.read()
+&gt;&gt;&gt; data
+b<span class="st">&#39;* spam</span><span class="ch">\n</span><span class="st">* eggs</span><span class="ch">\n</span><span class="st">* bacon</span><span class="ch">\n</span><span class="st">* spam</span><span class="ch">\n</span><span class="st">* sausage</span><span class="ch">\n</span><span class="st">* spam</span><span class="ch">\n</span><span class="st">* ham</span><span class="ch">\n</span><span class="st">&#39;</span></code></pre>
+<p>Pour rappel, le mode <code>'rb'</code> que l'on a passé à cette fonction signifie :</p>
+<ul>
+<li><code>'r'</code> : le fichier est ouvert en lecture (<em>reading</em>)</li>
+<li><code>'b'</code> : le fichier est ouvert en mode binaire (<em>binary</em>)</li>
+</ul>
+<p>En appelant la méthode <code>read()</code> de cet objet (sans lui spécifier une taille de buffer), nous avons lu la totalité de son contenu qu'il nous a retourné dans un objet <code>bytes</code>.</p>
+<p>Si nous souhaitons exploiter cette donnée, il nous faudrait bien sûr la convertir en une chaîne de caractères Unicode, en la décodant.</p>
+<p>Ce genre de traitement étant particulièrement courant, Python permet, par défaut, d'ouvrir les fichiers &quot;en mode texte&quot;, pour nous épargner la plupart des tâches répétitives.</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; fobj = <span class="dt">open</span>(<span class="st">&#39;menu&#39;</span>, <span class="st">&#39;r&#39;</span>)
+&gt;&gt;&gt; data = fobj.read()
+&gt;&gt;&gt; data
+<span class="co">&#39;* spam\n* eggs\n* bacon\n* spam\n* sausage\n* spam\n* ham\n&#39;</span></code></pre>
+<p>Cela peut paraître absolument enfantin (pour l'utilisateur, en tout cas, ça l'est !), mais maintenant que vous savez que Python est obligé de passer par l'appel système <code>open</code> lorsqu'il va ouvrir notre fichier en mode texte, <em>pouvez-vous deviner l'ensemble des opérations supplémentaires qu'il réalise en plus de l'appel système pour avoir ce comportement ?</em></p>
 <h1 id="les-processus"><a href="#les-processus"><span class="header-section-number">3</span> Les processus</a></h1>
 <h1 id="le-parallélisme-multi-processus"><a href="#le-parallélisme-multi-processus"><span class="header-section-number">4</span> Le Parallélisme multi-processus</a></h1>
 <h1 id="les-threads"><a href="#les-threads"><span class="header-section-number">5</span> Les threads</a></h1>
