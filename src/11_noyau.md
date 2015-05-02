@@ -156,7 +156,7 @@ Les appels systèmes en eux-mêmes sont réalisés au moyen d'une interruption
 matérielle. En somme, leur nature et la façon dont ils sont réalisés dépend à
 la fois de la machine et du système d'exploitation.
 
-### Appels systèmes sous Unix
+## Cas des Unixoïdes
 
 La famille Unix est la plus grande famille de systèmes d'exploitation qui
 existe à ce jour. Ces systèmes ont tous un fonctionnement commun, qui
@@ -171,6 +171,8 @@ systèmes moins connus tels que Minix, Plan9 ou GNU/Hurd.
 mais ça ne l'empêche pas de fonctionner de la même façon et de suivre en très
 grande partie les mêmes standards. C'est la raison pour laquelle on le place
 très volontiers dans la famille des systèmes Unix.
+
+### Appels systèmes sous Unix
 
 Les systèmes Unix proposent tous, dans leur bibliothèque C standard (que l'on
 appelle la `libc`), des fonctions permettant de réaliser des appels système.

@@ -130,13 +130,15 @@ d'*entrées* : lorsque l'on traverse un répertoire, nous n'avons aucun moyen d
 savoir si une entrée donnée correspond à un fichier ou à un sous-répertoire.
 Pour avoir cette info, il faut aller lire les données des inodes.
 
-### L'appel système `stat` : lire le contenu des inodes
+## Manipulation des *inodes*
 
 La structure réelle des inodes dépend du type de système de fichiers sur lequel
 ils stont stockés (et il en existe des tonnes : `ext4`, `reiserfs`, `ramfs`,
 `fat32`, `ntfs`…). Cela dit, quelle que soit la structure adoptée par le
 système de fichiers, il est possible d'accéder aux données qu'elle recèle en
 invoquant l'appel système `stat`, ou bien la commande POSIX du même nom.
+
+### L'appel système `stat`
 
 Nous nous contenterons de réaliser cet appel système depuis Python, en
 utilisant la fonction standard `os.stat()`.
@@ -426,14 +428,11 @@ directement la valeur octale :
 '-rw-rw-r--'
 ```
 
-## La manipulation des flux de données en Python
+## Lecture et écriture de fichiers au niveau système
 
 Maintenant que nous avons une abstraction pour représenter les fichiers sur un
 périphérique de stockage, voyons un peu comment le noyau va présenter ces
-fichiers aux programmes qui sont en train de s'exécuter. Nous en profiterons au
-passage pour découvrir la couche d'abstaction supplémentaire que rajoute
-Python, pour étendre ce concept à tout ce qui ressemble de près ou de loin à un
-*flux de données*.
+fichiers aux programmes qui sont en train de s'exécuter.
 
 ### Inodes et descripteurs de fichiers
 
@@ -489,7 +488,7 @@ bien d'établir une liste aussi fastidieuse que superflue).
 Ainsi, de notre point de vue d'utilisateurs des facilités du noyau, ce sont
 surtout ces descripteurs de fichiers qui nous intéressent.
 
-### L'interaction à bas niveau avec les fichiers
+### Interactions de base
 
 Nous allons travailler sur un exemple simple. Nous allons copier le fichier
 `menu` dont le contenu est le suivant :
@@ -674,73 +673,115 @@ b'Ceci est une saisie au clavier.\n'
 Comme vous le constatez, les "fichiers" que le noyau nous expose peuvent
 également être des abstractions pour le terminal, le clavier, ou un
 périphérique matériel ou d'autres choses encore… Je suppose que vous comprenez,
-maintenant, le potentiel des quatres fonctions que nous venons de voir.
+maintenant, le potentiel des quatres appels que nous venons de voir !
 
+## L'interface haut niveau de Python (parce qu'il qui vous veut du bien)
 
-### L'interface haut niveau : les *file objects*
-
-Dans « la vraie vie », on n'a jamais besoin d'utiliser les quatre appels
+Dans « la vraie vie », on n'a pratiquement jamais besoin d'utiliser les appels
 système que nous venons d'évoquer en Python. Et pour cause ! Celui-ci expose au
 développeur une interface beaucoup plus confortable pour manipuler des
 fichiers. Cette interface consiste à envelopper un *file descriptor*  dans ce
-que Python nomme un *file-like object*, et est implémentée dans le module
-standard [`io`](https://docs.python.org/3.4/library/io.html).
+que Python nomme des *file objects*, et est implémentée dans le module standard
+[`io`](https://docs.python.org/3.4/library/io.html).
 
-C'est dans ce module en particulier que réside l'implémentation de la fonction
-*builtin* `open()`. Contrairement à l'appel système du même nom (qu'elle
-abstrait pour nous), son comportement est *souple* : nul besoin de lui
-spécifier un ensemble de flags complexes pour décider quoi faire, puisqu'elle
-adopte un comportement par défaut qui répond aux besoins les plus courants.
-Nous ne détaillerons pas la totalité de son comportement ici, un simple
-`help(open)` vous fournira sa documentation complète. Cela dit, la différence
-majeure entre cette fonction à haut niveau et les appels système qu'elle
-englobe est qu'elle présuppose deux types d'interactions différents avec les
-fichiers :
+L'apport majeur de cette interface à haut niveau est qu'elle présuppose
+plusieurs types d'interactions différents avec les fichiers :
 
-* l'interaction en mode **texte**,
-* l'interaction en mode **binaire**.
+* l'interaction en mode **binaire** assez bas niveau, qui permet de lire et
+  écrire des données brutes dans un fichier,
+* l'interaction en mode **texte**, plus haut niveau, qui présuppose que les
+  données du fichier sont du texte.
 
-Le mode d'ouverture le plus proche de l'appel système est sans doute le mode
-binaire. En effet, ce mode permet de lire ou écrire des données brutes
-(représentées par des objets `bytes`).
+Cela permet au développeur de profiter d'un grand nombre de facilités sans même
+avoir besoin de soupçonner l'existence de tous les mécanismes que son langage
+lui apporte.
 
-Par exemple, utilisons ce mode d'interaction pour lire le fichier `menu` de
-l'exemple précédent.
+### La toute-puissante builtin `open()`
 
-```python
->>> fobj = open('menu', 'rb')
->>> data = fobj.read()
->>> data
-b'* spam\n* eggs\n* bacon\n* spam\n* sausage\n* spam\n* ham\n'
-```
+    TODO
 
-Pour rappel, le mode `'rb'` que l'on a passé à cette fonction signifie :
+### Les flux de données binaires
 
-* `'r'` : le fichier est ouvert en lecture (*reading*)
-* `'b'` : le fichier est ouvert en mode binaire (*binary*)
+    TODO
 
-En appelant la méthode `read()` de cet objet (sans lui spécifier une taille de
-buffer), nous avons lu la totalité de son contenu qu'il nous a retourné dans un
-objet `bytes`.
+### Les fichiers texte
 
-Si nous souhaitons exploiter cette donnée, il nous faudrait bien sûr la
-convertir en une chaîne de caractères Unicode, en la décodant.
+    TODO
 
-Ce genre de traitement étant particulièrement courant, Python permet, par
-défaut, d'ouvrir les fichiers "en mode texte", pour nous épargner la plupart
-des tâches répétitives.
+### Formatage des données textuelles
+
+Le mode texte besoin d'au moins deux paramètres pour fonctionner : l'encodage
+du fichier, et le délimiteur de fin de ligne, que l'on peut spécifier en
+argument de la builtin `open()`. Par défaut, Python utilisera ceux qui sont
+configurés sur le système. On peut retrouver l'encodage par défaut en nous
+servant du module `locale`, et le délimiteur de fin de ligne via `os.linesep` :
 
 ```python
->>> fobj = open('menu', 'r')
->>> data = fobj.read()
->>> data
-'* spam\n* eggs\n* bacon\n* spam\n* sausage\n* spam\n* ham\n'
+>>> locale.getlocale()
+('en_US', 'UTF-8')
+>>> os.linesep
+'\n'
 ```
 
-Cela peut paraître absolument enfantin (pour l'utilisateur, en tout cas, ça
-l'est !), mais maintenant que vous savez que Python est obligé de passer par
-l'appel système `open` lorsqu'il va ouvrir notre fichier en mode texte,
-*pouvez-vous deviner l'ensemble des opérations supplémentaires qu'il réalise en
-plus de l'appel système pour avoir ce comportement ?*
+Ces quelques lignes m'apprennent que mon système est configuré en anglais, et
+qu'il utilise l'encodage `utf-8` par défaut, en délimitant les lignes du
+symbole ASCII `LINE_FEED`.
 
+Ces considérations sur l'encodage sont importantes car ni Python, ni votre
+système d'exploitation ne sont magiques : ils ne chercheront pas à deviner
+l'encodage des fichiers texte[^guessencoding]. Par exemple, si je cherche à
+ouvrir un fichier texte rédigé sous Windows, je risque fort de me
+heurter à un problème :
+
+[^guessencoding]: Mais certains modules non-standard de Python comme
+[chardet](https://pypi.python.org/pypi/chardet/2.3.0) en sont capables.
+
+```python
+>>> fobj = open('exemple.txt', 'r')
+>>> print(fobj.read())
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/lib/python3.4/codecs.py", line 313, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe9 in position 18: ...
+```
+
+En effet, il y a de grandes chances que ce fichier ait été encodé en `latin-1`,
+comme la commande `file` nous le confirme :
+
+```
+$ file exemple.txt
+exemple.txt: ISO-8859 text, with CRLF line terminators
+```
+
+Il faudra donc spécifier cet encodage à la fonction `open()`[^supportedcodecs]:
+
+[^supportedcodecs]: Pour déterminer l'argument attendu par Python, vous pouvez
+vous référer à [ce
+tableau](https://docs.python.org/3.4/library/codecs.html#standard-encodings)
+qui décrit les encodages qu'il supporte.
+
+```python
+>>> fobj = open('exemple.txt', 'r', encoding='iso-8859-1')
+>>> fobj.read()
+'Donnée encodée\nen latin-1'
+```
+
+Pour comparaison, relisons ce fichier, mais cette fois-ci en mode binaire :
+
+```python
+>>> fobj = open('exemple.txt', 'rb')
+>>> fobj.read()
+b'Donn\xe9e encod\xe9e\r\nen latin-1'
+```
+
+Au-delà des accents (qui sont encodés de façon propre au `latin-1`), nous
+pouvons également remarquer que le passage à la ligne est effectué via la
+séquence CRLF (`CARRIAGE_RETURN LINE_FEED`): `'\r\n'`, alors que dans la
+version décodée, celui-ci est remplacé par `'\n'`.
+
+Il s'agit du comportement par défaut de Python en mode texte : les retours à la
+ligne sont standardisés pour correspondre à un caractère `'\n'` dans les
+chaînes de caractères, puis remplacés par la séquence désignée par `os.linesep`
+lorsqu'ils sont écrits dans un fichier.
 
