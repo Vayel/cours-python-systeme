@@ -46,27 +46,36 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <li><a href="#au-plus-proche-du-matériel-le-noyau"><span class="toc-section-number">1.1</span> Au plus proche du matériel : le noyau</a><ul>
 <li><a href="#interagir-avec-le-matériel.-oui-mais"><span class="toc-section-number">1.1.1</span> Interagir avec le matériel. Oui, mais…</a></li>
 <li><a href="#un-noyau-pour-les-gouverner-tous-et-dans-labstraction-les-lier"><span class="toc-section-number">1.1.2</span> Un noyau pour les gouverner tous, et dans l'abstraction les lier</a></li>
-<li><a href="#appels-systèmes-sous-unix"><span class="toc-section-number">1.1.3</span> Appels systèmes sous Unix</a></li>
-<li><a href="#les-stubs-de-la-libc-et-le-module-standard-os-de-python"><span class="toc-section-number">1.1.4</span> Les <em>stubs</em> de la <code>libc</code> et le module standard <code>os</code> de Python</a></li>
 </ul></li>
-<li><a href="#le-shell-unix"><span class="toc-section-number">1.2</span> Le shell Unix</a><ul>
-<li><a href="#conventions-de-notation"><span class="toc-section-number">1.2.1</span> Conventions de notation</a></li>
-<li><a href="#utilisateurs-et-groupes"><span class="toc-section-number">1.2.2</span> Utilisateurs et groupes</a></li>
-<li><a href="#les-modules-pwd-et-grp-de-la-bibliothèque-standard"><span class="toc-section-number">1.2.3</span> Les modules <code>pwd</code> et <code>grp</code> de la bibliothèque standard</a></li>
+<li><a href="#cas-des-unixoïdes"><span class="toc-section-number">1.2</span> Cas des Unixoïdes</a><ul>
+<li><a href="#appels-systèmes-sous-unix"><span class="toc-section-number">1.2.1</span> Appels systèmes sous Unix</a></li>
+<li><a href="#les-stubs-de-la-libc-et-le-module-standard-os-de-python"><span class="toc-section-number">1.2.2</span> Les <em>stubs</em> de la <code>libc</code> et le module standard <code>os</code> de Python</a></li>
+</ul></li>
+<li><a href="#le-shell-unix"><span class="toc-section-number">1.3</span> Le shell Unix</a><ul>
+<li><a href="#conventions-de-notation"><span class="toc-section-number">1.3.1</span> Conventions de notation</a></li>
+<li><a href="#utilisateurs-et-groupes"><span class="toc-section-number">1.3.2</span> Utilisateurs et groupes</a></li>
+<li><a href="#les-modules-pwd-et-grp-de-la-bibliothèque-standard"><span class="toc-section-number">1.3.3</span> Les modules <code>pwd</code> et <code>grp</code> de la bibliothèque standard</a></li>
 </ul></li>
 </ul></li>
 <li><a href="#le-système-de-fichiers"><span class="toc-section-number">2</span> Le système de fichiers</a><ul>
 <li><a href="#arborescence-des-fichiers"><span class="toc-section-number">2.1</span> Arborescence des fichiers</a><ul>
 <li><a href="#linterface-utilisateur-classique"><span class="toc-section-number">2.1.1</span> L'interface utilisateur classique</a></li>
 <li><a href="#la-représentation-bas-niveau-les-inodes"><span class="toc-section-number">2.1.2</span> La représentation bas niveau : les <em>inodes</em></a></li>
-<li><a href="#lappel-système-stat-lire-le-contenu-des-inodes"><span class="toc-section-number">2.1.3</span> L'appel système <code>stat</code> : lire le contenu des inodes</a></li>
-<li><a href="#type-et-permissions-dun-fichier"><span class="toc-section-number">2.1.4</span> Type et permissions d'un fichier</a></li>
-<li><a href="#modifier-les-permissions-dun-fichier"><span class="toc-section-number">2.1.5</span> Modifier les permissions d'un fichier</a></li>
 </ul></li>
-<li><a href="#la-manipulation-des-flux-de-données-en-python"><span class="toc-section-number">2.2</span> La manipulation des flux de données en Python</a><ul>
-<li><a href="#inodes-et-descripteurs-de-fichiers"><span class="toc-section-number">2.2.1</span> Inodes et descripteurs de fichiers</a></li>
-<li><a href="#linteraction-à-bas-niveau-avec-les-fichiers"><span class="toc-section-number">2.2.2</span> L'interaction à bas niveau avec les fichiers</a></li>
-<li><a href="#linterface-haut-niveau-les-file-objects"><span class="toc-section-number">2.2.3</span> L'interface haut niveau : les <em>file objects</em></a></li>
+<li><a href="#manipulation-des-inodes"><span class="toc-section-number">2.2</span> Manipulation des <em>inodes</em></a><ul>
+<li><a href="#lappel-système-stat"><span class="toc-section-number">2.2.1</span> L'appel système <code>stat</code></a></li>
+<li><a href="#type-et-permissions-dun-fichier"><span class="toc-section-number">2.2.2</span> Type et permissions d'un fichier</a></li>
+<li><a href="#modifier-les-permissions-dun-fichier"><span class="toc-section-number">2.2.3</span> Modifier les permissions d'un fichier</a></li>
+</ul></li>
+<li><a href="#lecture-et-écriture-de-fichiers-au-niveau-système"><span class="toc-section-number">2.3</span> Lecture et écriture de fichiers au niveau système</a><ul>
+<li><a href="#inodes-et-descripteurs-de-fichiers"><span class="toc-section-number">2.3.1</span> Inodes et descripteurs de fichiers</a></li>
+<li><a href="#interactions-de-base"><span class="toc-section-number">2.3.2</span> Interactions de base</a></li>
+</ul></li>
+<li><a href="#linterface-haut-niveau-de-python-parce-quil-qui-vous-veut-du-bien"><span class="toc-section-number">2.4</span> L'interface haut niveau de Python (parce qu'il qui vous veut du bien)</a><ul>
+<li><a href="#la-toute-puissante-builtin-open"><span class="toc-section-number">2.4.1</span> La toute-puissante builtin <code>open()</code></a></li>
+<li><a href="#les-flux-de-données-binaires"><span class="toc-section-number">2.4.2</span> Les flux de données binaires</a></li>
+<li><a href="#les-fichiers-texte"><span class="toc-section-number">2.4.3</span> Les fichiers texte</a></li>
+<li><a href="#formatage-des-données-textuelles"><span class="toc-section-number">2.4.4</span> Formatage des données textuelles</a></li>
 </ul></li>
 </ul></li>
 <li><a href="#les-processus"><span class="toc-section-number">3</span> Les processus</a></li>
@@ -132,9 +141,10 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <img src="src/img/noyau_syscall.png" alt="Accès au matériel sur un système moderne" /><figcaption>Accès au matériel sur un système moderne</figcaption>
 </figure>
 <p>Les appels systèmes en eux-mêmes sont réalisés au moyen d'une interruption matérielle. En somme, leur nature et la façon dont ils sont réalisés dépend à la fois de la machine et du système d'exploitation.</p>
-<h3 id="appels-systèmes-sous-unix"><a href="#appels-systèmes-sous-unix"><span class="header-section-number">1.1.3</span> Appels systèmes sous Unix</a></h3>
+<h2 id="cas-des-unixoïdes"><a href="#cas-des-unixoïdes"><span class="header-section-number">1.2</span> Cas des Unixoïdes</a></h2>
 <p>La famille Unix est la plus grande famille de systèmes d'exploitation qui existe à ce jour. Ces systèmes ont tous un fonctionnement commun, qui reproduit celui du système UNIX développé par AT&amp;T durant les années 1970.</p>
 <p>Dans cette famille de systèmes, on trouvera notamment GNU/Linux<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> et OpenBSD, qui sont des systèmes d'exploitation libres, mais également Mac OS X, qui peuple les ordinateurs de la marque Apple, ainsi qu'une myriade d'autres systèmes moins connus tels que Minix, Plan9 ou GNU/Hurd.</p>
+<h3 id="appels-systèmes-sous-unix"><a href="#appels-systèmes-sous-unix"><span class="header-section-number">1.2.1</span> Appels systèmes sous Unix</a></h3>
 <p>Les systèmes Unix proposent tous, dans leur bibliothèque C standard (que l'on appelle la <code>libc</code>), des fonctions permettant de réaliser des appels système.</p>
 <p>La plus basique d'entre elles est la fonction <code>syscall()</code> dont la signature est la suivante :</p>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> syscall (<span class="dt">int</span> number, ...)</code></pre>
@@ -149,7 +159,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; libc.syscall(<span class="dv">39</span>)
 <span class="dv">7827</span></code></pre>
 <p>Cela semble avoir fonctionné, mais comment en être certain ?</p>
-<h3 id="les-stubs-de-la-libc-et-le-module-standard-os-de-python"><a href="#les-stubs-de-la-libc-et-le-module-standard-os-de-python"><span class="header-section-number">1.1.4</span> Les <em>stubs</em> de la <code>libc</code> et le module standard <code>os</code> de Python</a></h3>
+<h3 id="les-stubs-de-la-libc-et-le-module-standard-os-de-python"><a href="#les-stubs-de-la-libc-et-le-module-standard-os-de-python"><span class="header-section-number">1.2.2</span> Les <em>stubs</em> de la <code>libc</code> et le module standard <code>os</code> de Python</a></h3>
 <p>En fait, dans la plupart des cas, nous n'aurons jamais besoin d'utiliser cette fonction <code>syscall()</code> directement. Déjà, sachez que la <code>libc</code> définit un certain nombre de raccourcis, appelés <em>stubs</em>, pour la plupart des appels systèmes courants. Pour en revenir à notre exemple, il existe effectivement une fonction standard <code>getpid()</code> en C, qui réalise ce même appel système :</p>
 <pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; libc.getpid()
 <span class="dv">7827</span></code></pre>
@@ -160,13 +170,13 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <span class="dv">7827</span></code></pre>
 <p>Constatez que nous obtenons bien le même résultat, que nous utilisions la fonction <code>syscall()</code>, le <em>stub</em> <code>getpid()</code> de la <code>libc</code> ou la fonction <code>os.getpid()</code> de la bibliothèque standard Python.</p>
 <p>Gardez cependant cette fonction <code>syscall()</code> dans un coin de votre mémoire. Il nous arrivera peut-être un jour (ou dans un futur chapitre de ce cours) de devoir nous rappatrier sur cette fonction pour réaliser un appel système dont il n'existe ni fonction équivalente dans le module <code>os</code>, ni <em>stub</em> dans la <code>libc</code>. Dans ce cas, nous serons bien contents de pouvoir recourir à cette solution.</p>
-<h2 id="le-shell-unix"><a href="#le-shell-unix"><span class="header-section-number">1.2</span> Le shell Unix</a></h2>
+<h2 id="le-shell-unix"><a href="#le-shell-unix"><span class="header-section-number">1.3</span> Le shell Unix</a></h2>
 <p>Un système d'exploitation, ce n'est pas seulement un noyau. C'est d'ailleurs pour cette raison que l'on ne devrait jamais parler de « Linux » tout seul lorsque l'on désigne le système d'exploitation GNU/Linux : pour qu'un système soit utilisable, il faut envelopper le noyau d'une couche logicielle qui sert <em>d'interface</em> entre celui-ci et l'utilisateur. Cette interface, dans le vocabulaire Unix, porte le nom de <em>shell</em> (comme le mot anglais qui désigne une <em>coquille</em>).</p>
 <p>La notion de <em>shell</em>, en raison de nombreux abus de langages, est finalement assez vague, car elle prend un sens différent selon le contexte dans lequel on y fait référence. Dans le contexte d'un système d'exploitation, le shell est l'interface qui enveloppe le noyau. Cette interface peut être <em>graphique</em> ou en <em>ligne de commande</em>, tant qu'elle désigne la couche logicielle qui permet à l'utilisateur d'interagir avec son OS. On s'accordera toutefois à dire qu'un <em>shell Unix</em> désigne bel et bien une interface en ligne de commande, puisque la norme POSIX (qui sert à uniformiser le fonctionnement des systèmes Unix) définit le format et le comportement d'un certain nombre de commandes standard.</p>
 <p>En revanche, il existe plusieurs <em>shells</em> qui permettent tous de travailler avec ces mêmes commandes standard. Le plus répandu à l'heure actuelle est <code>bash</code> (pour <em>Bourne-Again SHell</em>), puisque c'est celui qui vient par défaut avec les distributions de GNU/Linux et Mac OS X.</p>
 <p>À la rigueur, pour suivre ce cours, vous pouvez bien utiliser le shell que vous voudrez. Personnellement, j'utilise <code>zsh</code>, mais toutes les lignes de commande que nous taperons dans ce cours seront compatibles avec <code>bash</code>. De toute manière, dès que nous aurons besoin de réaliser des choses élaborées, nous utiliserons Python.</p>
 <p>Ce cours ne portant pas sur le shell mais sur la programmation système, toutes les commandes utilisées ne seront pas nécessairement détaillées. Le lecteur est invité à découvrir la fonction de celles qu'il ne connaît pas en explorant de lui-même, soit en affichant les messages d'aide (via <code>&lt;cmd&gt; --help</code>), soit en se retournant vers le manuel standard (<code>man &lt;cmd&gt;</code>).</p>
-<h3 id="conventions-de-notation"><a href="#conventions-de-notation"><span class="header-section-number">1.2.1</span> Conventions de notation</a></h3>
+<h3 id="conventions-de-notation"><a href="#conventions-de-notation"><span class="header-section-number">1.3.1</span> Conventions de notation</a></h3>
 <p>Dans toute la suite de ce cours, nous distinguerons trois notations particulières pour différencier les lignes de commande. Les commandes à taper dans une console Python seront précédées, comme dans l'interpréteur standard, par trois chevrons fermants (<code>&gt;&gt;&gt;</code>) :</p>
 <pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; <span class="dt">print</span>(<span class="st">&quot;Hello, World!&quot;</span>)
 Hello, World!</code></pre>
@@ -176,7 +186,7 @@ arnaud</code></pre>
 <p>Les commandes <em>shell</em> tapées sous l'utilisateur spécial <code>root</code> seront précédées d'un symbole <em>pourcent</em> (<code>%</code>) :</p>
 <pre><code>% whoami
 root</code></pre>
-<h3 id="utilisateurs-et-groupes"><a href="#utilisateurs-et-groupes"><span class="header-section-number">1.2.2</span> Utilisateurs et groupes</a></h3>
+<h3 id="utilisateurs-et-groupes"><a href="#utilisateurs-et-groupes"><span class="header-section-number">1.3.2</span> Utilisateurs et groupes</a></h3>
 <p>Tous les utilisateurs d'un système Unix sont identifiés par un numéro d'utilisateur unique : leur UID (User IDentifier).</p>
 <p>Par exemple, sur ma machine, je dispose de l'UID 1000 :</p>
 <pre><code>$ id -u
@@ -189,7 +199,7 @@ arnaud</code></pre>
 uid=1000(arnaud) gid=1000(arnaud) groups=1000(arnaud),4(adm),27(sudo),...</code></pre>
 <p>Dans cet exemple, on s'aperçoit que j'ai l'UID 1000, que mon groupe primaire (mon GID) est le numéro 1000, et que j'appartiens également aux groupes 4 et 27 (et plein d'autres que j'ai éludés).</p>
 <p>La base de données des utilisateurs s'appelle généralement <code>passwd</code>. Elle est écrite en clair dans le fichier <code>/etc/passwd</code>. La base de données des groupes, quant à elle, se trouve classiquement dans le fichier <code>/etc/groups</code>.</p>
-<h3 id="les-modules-pwd-et-grp-de-la-bibliothèque-standard"><a href="#les-modules-pwd-et-grp-de-la-bibliothèque-standard"><span class="header-section-number">1.2.3</span> Les modules <code>pwd</code> et <code>grp</code> de la bibliothèque standard</a></h3>
+<h3 id="les-modules-pwd-et-grp-de-la-bibliothèque-standard"><a href="#les-modules-pwd-et-grp-de-la-bibliothèque-standard"><span class="header-section-number">1.3.3</span> Les modules <code>pwd</code> et <code>grp</code> de la bibliothèque standard</a></h3>
 <p>Plutôt que d'interagir directement avec ces fichiers, il est plus pratique d'utiliser respectivement les modules standard <code>pwd</code> et <code>grp</code> pour accéder en lecture aux bases de données des utilisateurs et des groupes. Leur documentation (<a href="https://docs.python.org/3.4/library/pwd.html">pwd</a>, <a href="https://docs.python.org/3.4/library/grp.html">grp</a>) est suffisamment concise pour que je me permette de vous y renvoyer directement.</p>
 <p>Dans l'exemple suivant, on utilise l'appel système <code>getuid</code> pour récupérer le UID de l'utilisateur du programme, et le saluer par son login que l'on retrouve dans la base de données <code>passwd</code> via le module <code>pwd</code> :</p>
 <pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; <span class="ch">import</span> os, pwd
@@ -199,7 +209,7 @@ uid=1000(arnaud) gid=1000(arnaud) groups=1000(arnaud),4(adm),27(sudo),...</code>
 ...
 &gt;&gt;&gt; say_hello()
 Hello, arnaud!</code></pre>
-<h4 id="exercices"><a href="#exercices"><span class="header-section-number">1.2.3.1</span> Exercices</a></h4>
+<h4 id="exercices"><a href="#exercices"><span class="header-section-number">1.3.3.1</span> Exercices</a></h4>
 <ol type="1">
 <li><p>Compléter cette fonction <code>say_hello</code> de façon qu'elle affiche également le GID de l'utilsateur (via l'appel système <code>getgid</code>) ainsi que le nom de ce groupe en vous servant du module <code>grp</code>.</p></li>
 <li><p>Utiliser ces modules pour essayer de reproduire le comportement de la commande shell <code>id</code> (au moins l'appel de base, sans option). Pour connaître tous les groupes auxquels un utilisateur appartient, vous pouvez vous servir de l'appel système <a href="https://docs.python.org/3.4/library/os.html#os.getgrouplist"><code>os.getgrouplist</code></a> qui prend en arguments le nom d'utilisateur en toutes lettres ainsi que son GID.</p></li>
@@ -257,8 +267,9 @@ makefile  src</code></pre>
 <pre><code>$ ls -i
 6422940 makefile  6422937 src</code></pre>
 <p>Ce dernier exemple nous montre que dans le répertoire courant, nous avons une entrée nommée <code>makefile</code> pointant sur l'inode numéro 6422940 et une entrée nommée <code>src</code> pointant sur l'inode numéro 6422937. Notez que je parle bien d'<em>entrées</em> : lorsque l'on traverse un répertoire, nous n'avons aucun moyen de savoir si une entrée donnée correspond à un fichier ou à un sous-répertoire. Pour avoir cette info, il faut aller lire les données des inodes.</p>
-<h3 id="lappel-système-stat-lire-le-contenu-des-inodes"><a href="#lappel-système-stat-lire-le-contenu-des-inodes"><span class="header-section-number">2.1.3</span> L'appel système <code>stat</code> : lire le contenu des inodes</a></h3>
+<h2 id="manipulation-des-inodes"><a href="#manipulation-des-inodes"><span class="header-section-number">2.2</span> Manipulation des <em>inodes</em></a></h2>
 <p>La structure réelle des inodes dépend du type de système de fichiers sur lequel ils stont stockés (et il en existe des tonnes : <code>ext4</code>, <code>reiserfs</code>, <code>ramfs</code>, <code>fat32</code>, <code>ntfs</code>…). Cela dit, quelle que soit la structure adoptée par le système de fichiers, il est possible d'accéder aux données qu'elle recèle en invoquant l'appel système <code>stat</code>, ou bien la commande POSIX du même nom.</p>
+<h3 id="lappel-système-stat"><a href="#lappel-système-stat"><span class="header-section-number">2.2.1</span> L'appel système <code>stat</code></a></h3>
 <p>Nous nous contenterons de réaliser cet appel système depuis Python, en utilisant la fonction standard <code>os.stat()</code>.</p>
 <pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; stat_res = os.stat(<span class="st">&#39;/home/arnaud/doc/cours-systeme/makefile&#39;</span>)
 &gt;&gt;&gt; stat_res
@@ -323,7 +334,7 @@ os.stat_result(st_mode=<span class="dv">33204</span>, st_ino=<span class="dv">64
 &gt;&gt;&gt; <span class="dt">str</span>(d)
 <span class="co">&#39;2015-04-17 22:51:19&#39;</span></code></pre>
 <p>En somme, on peut en déduire qu'à l'exception du nom des fichiers, toutes les infos utiles se trouvent dans les inodes.</p>
-<h3 id="type-et-permissions-dun-fichier"><a href="#type-et-permissions-dun-fichier"><span class="header-section-number">2.1.4</span> Type et permissions d'un fichier</a></h3>
+<h3 id="type-et-permissions-dun-fichier"><a href="#type-et-permissions-dun-fichier"><span class="header-section-number">2.2.2</span> Type et permissions d'un fichier</a></h3>
 <p>Le champ le plus dense en informations que nous retourne l'appel système <code>os.stat()</code> est sans aucun doute <code>st_mode</code> : il y a tellement de choses encodées sur ces 16 bits que Python dédie un module standard entier (<a href="https://docs.python.org/3.4/library/stat.html"><code>stat</code></a>) à leur manipulation !</p>
 <p>Concrètement, chaque bit de ce nombre est un <em>flag</em>, c'est-à-dire une option qui peut être activée ou non. Manipuler ce style de données est monnaie courante en C, mais reste assez anecdotique chez les Pythonistes<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>.</p>
 <p>Rappelons rapidement le fonctionnement des flags binaires. Imaginons un champ <em>vierge</em>, où tous les bits sont à 0 :</p>
@@ -434,7 +445,7 @@ os.stat_result(st_mode=<span class="dv">33204</span>, st_ino=<span class="dv">64
 <li><code>S_IFDIR</code>: l'inode désigne un <em>répertoire</em>, représenté par le préfixe <code>d</code>.</li>
 </ul>
 <p>Il existe encore (plein) d'autres flags et d'autres informations encodées dans ce champ <code>st_mode</code>, mais nous allons nous contenter de ceux-ci pour l'instant<a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a>. Nous découvrirons toutes les autres au fur et à mesure que nous toucherons dans ce cours aux notions qu'elles font intervenir, promis !</p>
-<h3 id="modifier-les-permissions-dun-fichier"><a href="#modifier-les-permissions-dun-fichier"><span class="header-section-number">2.1.5</span> Modifier les permissions d'un fichier</a></h3>
+<h3 id="modifier-les-permissions-dun-fichier"><a href="#modifier-les-permissions-dun-fichier"><span class="header-section-number">2.2.3</span> Modifier les permissions d'un fichier</a></h3>
 <p>J'ai mentionné un peu plus haut la commande <code>chmod</code>. Voyons comment l'utiliser (ainsi que la fonction Python équivalente, évidemment).</p>
 <p>Créons un fichier vide pour faire nos tests.</p>
 <pre><code>$ touch monfichier
@@ -469,9 +480,9 @@ $ stat -c &quot;%A (%a) %U:%G&quot; monfichier
 <pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; os.chmod(<span class="st">&quot;monfichier&quot;</span>, <span class="bn">0o664</span>)
 &gt;&gt;&gt; stat.filemode(os.stat(<span class="st">&quot;monfichier&quot;</span>).st_mode)
 <span class="co">&#39;-rw-rw-r--&#39;</span></code></pre>
-<h2 id="la-manipulation-des-flux-de-données-en-python"><a href="#la-manipulation-des-flux-de-données-en-python"><span class="header-section-number">2.2</span> La manipulation des flux de données en Python</a></h2>
-<p>Maintenant que nous avons une abstraction pour représenter les fichiers sur un périphérique de stockage, voyons un peu comment le noyau va présenter ces fichiers aux programmes qui sont en train de s'exécuter. Nous en profiterons au passage pour découvrir la couche d'abstaction supplémentaire que rajoute Python, pour étendre ce concept à tout ce qui ressemble de près ou de loin à un <em>flux de données</em>.</p>
-<h3 id="inodes-et-descripteurs-de-fichiers"><a href="#inodes-et-descripteurs-de-fichiers"><span class="header-section-number">2.2.1</span> Inodes et descripteurs de fichiers</a></h3>
+<h2 id="lecture-et-écriture-de-fichiers-au-niveau-système"><a href="#lecture-et-écriture-de-fichiers-au-niveau-système"><span class="header-section-number">2.3</span> Lecture et écriture de fichiers au niveau système</a></h2>
+<p>Maintenant que nous avons une abstraction pour représenter les fichiers sur un périphérique de stockage, voyons un peu comment le noyau va présenter ces fichiers aux programmes qui sont en train de s'exécuter.</p>
+<h3 id="inodes-et-descripteurs-de-fichiers"><a href="#inodes-et-descripteurs-de-fichiers"><span class="header-section-number">2.3.1</span> Inodes et descripteurs de fichiers</a></h3>
 <p>Bien sûr, manipuler des fichiers est une chose très courante en programmation. Après tout, une fois que l'on a compris le fonctionnement des fonctions de base <code>open()</code>, <code>read()</code>, <code>write()</code> et <code>close()</code>, on peut se dire qu'on a fait le tour de la question… La figure 2.3 montre qu'en réalité, ces quelques appels système ne sont que la partie émergée de l'iceberg, et qu'il y a bien plus à en dire que d'expliquer leur signature !</p>
 <figure>
 <img src="src/img/fd_table.png" alt="Accès aux fichiers en mémoire" /><figcaption>Accès aux fichiers en mémoire</figcaption>
@@ -482,7 +493,7 @@ $ stat -c &quot;%A (%a) %U:%G&quot; monfichier
 <p>Le processus qui va chercher à manipuler ce fichier, quant à lui, dispose (côté noyau) d'une <em>table des descripteurs de fichiers</em>, qui associe, grosso-modo, un indice entier (le <strong>descripteur de fichier</strong>, qu'on abrègera FD dans la suite, pour <em>file descriptor</em>) à une entrée de la table des fichiers ouverts. Ce qu'il est intéressant de noter, c'est que cette table est <em>locale</em> au processus, tout comme les descripteurs de fichiers (puisque ce sont tout simplement les indices de cette table). Ainsi, comme le schéma nous le montre, on peut très bien avoir un programme ayant ouvert un fichier et que le noyau aura placé dans l'entrée numéro 5 de sa table des FD, et un second programme qui aura ouvert le même fichier mais en l'associant localement au FD 12.</p>
 <p>Le fait que la table des descripteurs des fichiers du processus se trouve <em>côté noyau</em> n'est pas anodin, puisque ça signifie qu'on ne peut pas la manipuler directement (et donc que l'on ne peut pas faire n'importe quoi avec). Par contre, les descripteurs de fichiers sont exposés côté utilisateur, puisque ce sont eux que le programme passe en argument aux appels système <code>read</code>, <code>write</code> et <code>close</code> (et tout une palanquée d'autres dont nous nous garderons bien d'établir une liste aussi fastidieuse que superflue).</p>
 <p>Ainsi, de notre point de vue d'utilisateurs des facilités du noyau, ce sont surtout ces descripteurs de fichiers qui nous intéressent.</p>
-<h3 id="linteraction-à-bas-niveau-avec-les-fichiers"><a href="#linteraction-à-bas-niveau-avec-les-fichiers"><span class="header-section-number">2.2.2</span> L'interaction à bas niveau avec les fichiers</a></h3>
+<h3 id="interactions-de-base"><a href="#interactions-de-base"><span class="header-section-number">2.3.2</span> Interactions de base</a></h3>
 <p>Nous allons travailler sur un exemple simple. Nous allons copier le fichier <code>menu</code> dont le contenu est le suivant :</p>
 <pre><code>$ cat menu
 * spam
@@ -574,33 +585,49 @@ Une erreur s<span class="st">&#39;est produite</span>
 <pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; os.read(<span class="dv">0</span>, <span class="dv">4096</span>)
 Ceci est une saisie au clavier.
 b<span class="st">&#39;Ceci est une saisie au clavier.</span><span class="ch">\n</span><span class="st">&#39;</span></code></pre>
-<p>Comme vous le constatez, les &quot;fichiers&quot; que le noyau nous expose peuvent également être des abstractions pour le terminal, le clavier, ou un périphérique matériel ou d'autres choses encore… Je suppose que vous comprenez, maintenant, le potentiel des quatres fonctions que nous venons de voir.</p>
-<h3 id="linterface-haut-niveau-les-file-objects"><a href="#linterface-haut-niveau-les-file-objects"><span class="header-section-number">2.2.3</span> L'interface haut niveau : les <em>file objects</em></a></h3>
-<p>Dans « la vraie vie », on n'a jamais besoin d'utiliser les quatre appels système que nous venons d'évoquer en Python. Et pour cause ! Celui-ci expose au développeur une interface beaucoup plus confortable pour manipuler des fichiers. Cette interface consiste à envelopper un <em>file descriptor</em> dans ce que Python nomme un <em>file-like object</em>, et est implémentée dans le module standard <a href="https://docs.python.org/3.4/library/io.html"><code>io</code></a>.</p>
-<p>C'est dans ce module en particulier que réside l'implémentation de la fonction <em>builtin</em> <code>open()</code>. Contrairement à l'appel système du même nom (qu'elle abstrait pour nous), son comportement est <em>souple</em> : nul besoin de lui spécifier un ensemble de flags complexes pour décider quoi faire, puisqu'elle adopte un comportement par défaut qui répond aux besoins les plus courants. Nous ne détaillerons pas la totalité de son comportement ici, un simple <code>help(open)</code> vous fournira sa documentation complète. Cela dit, la différence majeure entre cette fonction à haut niveau et les appels système qu'elle englobe est qu'elle présuppose deux types d'interactions différents avec les fichiers :</p>
+<p>Comme vous le constatez, les &quot;fichiers&quot; que le noyau nous expose peuvent également être des abstractions pour le terminal, le clavier, ou un périphérique matériel ou d'autres choses encore… Je suppose que vous comprenez, maintenant, le potentiel des quatres appels que nous venons de voir !</p>
+<h2 id="linterface-haut-niveau-de-python-parce-quil-qui-vous-veut-du-bien"><a href="#linterface-haut-niveau-de-python-parce-quil-qui-vous-veut-du-bien"><span class="header-section-number">2.4</span> L'interface haut niveau de Python (parce qu'il qui vous veut du bien)</a></h2>
+<p>Dans « la vraie vie », on n'a pratiquement jamais besoin d'utiliser les appels système que nous venons d'évoquer en Python. Et pour cause ! Celui-ci expose au développeur une interface beaucoup plus confortable pour manipuler des fichiers. Cette interface consiste à envelopper un <em>file descriptor</em> dans ce que Python nomme des <em>file objects</em>, et est implémentée dans le module standard <a href="https://docs.python.org/3.4/library/io.html"><code>io</code></a>.</p>
+<p>L'apport majeur de cette interface à haut niveau est qu'elle présuppose plusieurs types d'interactions différents avec les fichiers :</p>
 <ul>
-<li>l'interaction en mode <strong>texte</strong>,</li>
-<li>l'interaction en mode <strong>binaire</strong>.</li>
+<li>l'interaction en mode <strong>binaire</strong> assez bas niveau, qui permet de lire et écrire des données brutes dans un fichier,</li>
+<li>l'interaction en mode <strong>texte</strong>, plus haut niveau, qui présuppose que les données du fichier sont du texte.</li>
 </ul>
-<p>Le mode d'ouverture le plus proche de l'appel système est sans doute le mode binaire. En effet, ce mode permet de lire ou écrire des données brutes (représentées par des objets <code>bytes</code>).</p>
-<p>Par exemple, utilisons ce mode d'interaction pour lire le fichier <code>menu</code> de l'exemple précédent.</p>
-<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; fobj = <span class="dt">open</span>(<span class="st">&#39;menu&#39;</span>, <span class="st">&#39;rb&#39;</span>)
-&gt;&gt;&gt; data = fobj.read()
-&gt;&gt;&gt; data
-b<span class="st">&#39;* spam</span><span class="ch">\n</span><span class="st">* eggs</span><span class="ch">\n</span><span class="st">* bacon</span><span class="ch">\n</span><span class="st">* spam</span><span class="ch">\n</span><span class="st">* sausage</span><span class="ch">\n</span><span class="st">* spam</span><span class="ch">\n</span><span class="st">* ham</span><span class="ch">\n</span><span class="st">&#39;</span></code></pre>
-<p>Pour rappel, le mode <code>'rb'</code> que l'on a passé à cette fonction signifie :</p>
-<ul>
-<li><code>'r'</code> : le fichier est ouvert en lecture (<em>reading</em>)</li>
-<li><code>'b'</code> : le fichier est ouvert en mode binaire (<em>binary</em>)</li>
-</ul>
-<p>En appelant la méthode <code>read()</code> de cet objet (sans lui spécifier une taille de buffer), nous avons lu la totalité de son contenu qu'il nous a retourné dans un objet <code>bytes</code>.</p>
-<p>Si nous souhaitons exploiter cette donnée, il nous faudrait bien sûr la convertir en une chaîne de caractères Unicode, en la décodant.</p>
-<p>Ce genre de traitement étant particulièrement courant, Python permet, par défaut, d'ouvrir les fichiers &quot;en mode texte&quot;, pour nous épargner la plupart des tâches répétitives.</p>
-<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; fobj = <span class="dt">open</span>(<span class="st">&#39;menu&#39;</span>, <span class="st">&#39;r&#39;</span>)
-&gt;&gt;&gt; data = fobj.read()
-&gt;&gt;&gt; data
-<span class="co">&#39;* spam\n* eggs\n* bacon\n* spam\n* sausage\n* spam\n* ham\n&#39;</span></code></pre>
-<p>Cela peut paraître absolument enfantin (pour l'utilisateur, en tout cas, ça l'est !), mais maintenant que vous savez que Python est obligé de passer par l'appel système <code>open</code> lorsqu'il va ouvrir notre fichier en mode texte, <em>pouvez-vous deviner l'ensemble des opérations supplémentaires qu'il réalise en plus de l'appel système pour avoir ce comportement ?</em></p>
+<p>Cela permet au développeur de profiter d'un grand nombre de facilités sans même avoir besoin de soupçonner l'existence de tous les mécanismes que son langage lui apporte.</p>
+<h3 id="la-toute-puissante-builtin-open"><a href="#la-toute-puissante-builtin-open"><span class="header-section-number">2.4.1</span> La toute-puissante builtin <code>open()</code></a></h3>
+<pre><code>TODO</code></pre>
+<h3 id="les-flux-de-données-binaires"><a href="#les-flux-de-données-binaires"><span class="header-section-number">2.4.2</span> Les flux de données binaires</a></h3>
+<pre><code>TODO</code></pre>
+<h3 id="les-fichiers-texte"><a href="#les-fichiers-texte"><span class="header-section-number">2.4.3</span> Les fichiers texte</a></h3>
+<pre><code>TODO</code></pre>
+<h3 id="formatage-des-données-textuelles"><a href="#formatage-des-données-textuelles"><span class="header-section-number">2.4.4</span> Formatage des données textuelles</a></h3>
+<p>Le mode texte besoin d'au moins deux paramètres pour fonctionner : l'encodage du fichier, et le délimiteur de fin de ligne, que l'on peut spécifier en argument de la builtin <code>open()</code>. Par défaut, Python utilisera ceux qui sont configurés sur le système. On peut retrouver l'encodage par défaut en nous servant du module <code>locale</code>, et le délimiteur de fin de ligne via <code>os.linesep</code> :</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; locale.getlocale()
+(<span class="st">&#39;en_US&#39;</span>, <span class="st">&#39;UTF-8&#39;</span>)
+&gt;&gt;&gt; os.linesep
+<span class="co">&#39;\n&#39;</span></code></pre>
+<p>Ces quelques lignes m'apprennent que mon système est configuré en anglais, et qu'il utilise l'encodage <code>utf-8</code> par défaut, en délimitant les lignes du symbole ASCII <code>LINE_FEED</code>.</p>
+<p>Ces considérations sur l'encodage sont importantes car ni Python, ni votre système d'exploitation ne sont magiques : ils ne chercheront pas à deviner l'encodage des fichiers texte<a href="#fn8" class="footnoteRef" id="fnref8"><sup>8</sup></a>. Par exemple, si je cherche à ouvrir un fichier texte rédigé sous Windows, je risque fort de me heurter à un problème :</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; fobj = <span class="dt">open</span>(<span class="st">&#39;exemple.txt&#39;</span>, <span class="st">&#39;r&#39;</span>)
+&gt;&gt;&gt; <span class="dt">print</span>(fobj.read())
+Traceback (most recent call last):
+  File <span class="st">&quot;&lt;stdin&gt;&quot;</span>, line <span class="dv">1</span>, in &lt;module&gt;
+  File <span class="st">&quot;/usr/lib/python3.4/codecs.py&quot;</span>, line <span class="dv">313</span>, in decode
+    (result, consumed) = <span class="ot">self</span>._buffer_decode(data, <span class="ot">self</span>.errors, final)
+<span class="ot">UnicodeDecodeError</span>: <span class="st">&#39;utf-8&#39;</span> codec can<span class="st">&#39;t decode byte 0xe9 in position 18: ...</span></code></pre>
+<p>En effet, il y a de grandes chances que ce fichier ait été encodé en <code>latin-1</code>, comme la commande <code>file</code> nous le confirme :</p>
+<pre><code>$ file exemple.txt
+exemple.txt: ISO-8859 text, with CRLF line terminators</code></pre>
+<p>Il faudra donc spécifier cet encodage à la fonction <code>open()</code><a href="#fn9" class="footnoteRef" id="fnref9"><sup>9</sup></a>:</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; fobj = <span class="dt">open</span>(<span class="st">&#39;exemple.txt&#39;</span>, <span class="st">&#39;r&#39;</span>, encoding=<span class="st">&#39;iso-8859-1&#39;</span>)
+&gt;&gt;&gt; fobj.read()
+<span class="co">&#39;Donnée encodée\nen latin-1&#39;</span></code></pre>
+<p>Pour comparaison, relisons ce fichier, mais cette fois-ci en mode binaire :</p>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; fobj = <span class="dt">open</span>(<span class="st">&#39;exemple.txt&#39;</span>, <span class="st">&#39;rb&#39;</span>)
+&gt;&gt;&gt; fobj.read()
+b<span class="st">&#39;Donn</span><span class="ch">\xe9e</span><span class="st"> encod</span><span class="ch">\xe9e\r\n</span><span class="st">en latin-1&#39;</span></code></pre>
+<p>Au-delà des accents (qui sont encodés de façon propre au <code>latin-1</code>), nous pouvons également remarquer que le passage à la ligne est effectué via la séquence CRLF (<code>CARRIAGE_RETURN LINE_FEED</code>): <code>'\r\n'</code>, alors que dans la version décodée, celui-ci est remplacé par <code>'\n'</code>.</p>
+<p>Il s'agit du comportement par défaut de Python en mode texte : les retours à la ligne sont standardisés pour correspondre à un caractère <code>'\n'</code> dans les chaînes de caractères, puis remplacés par la séquence désignée par <code>os.linesep</code> lorsqu'ils sont écrits dans un fichier.</p>
 <h1 id="les-processus"><a href="#les-processus"><span class="header-section-number">3</span> Les processus</a></h1>
 <h1 id="le-parallélisme-multi-processus"><a href="#le-parallélisme-multi-processus"><span class="header-section-number">4</span> Le Parallélisme multi-processus</a></h1>
 <h1 id="les-threads"><a href="#les-threads"><span class="header-section-number">5</span> Les threads</a></h1>
@@ -614,6 +641,8 @@ b<span class="st">&#39;* spam</span><span class="ch">\n</span><span class="st">*
 <li id="fn5"><p>RTFM ! Non, je plaisante, on va en parler juste après. ;)<a href="#fnref5">↩</a></p></li>
 <li id="fn6"><p>Par contre, si vous êtes curieux et voulez absolument en avoir un aperçu dès maintenant, alors cette fois je vous le dis très sérieusement : RTFM ! <code>man 2 stat</code> vous donnera la page du &quot;<em>fucking manual</em>&quot; à propos de l'appel système <code>stat</code>. Alternativement, <a href="https://docs.python.org/3.4/library/stat.html">la documentation du module Python <code>stat</code></a> vous dira... la même chose, en fait, mais sans vous préciser quels bits sont concernés.<a href="#fnref6">↩</a></p></li>
 <li id="fn7"><p>Nous n'avons pas encore vu la notion de <em>processus</em> dans ce cours. Si cela vous perturbe, considérez qu'un processus est une instance d'un programme qui est en train de tourner sur l'ordinateur.<a href="#fnref7">↩</a></p></li>
+<li id="fn8"><p>Mais certains modules non-standard de Python comme <a href="https://pypi.python.org/pypi/chardet/2.3.0">chardet</a> en sont capables.<a href="#fnref8">↩</a></p></li>
+<li id="fn9"><p>Pour déterminer l'argument attendu par Python, vous pouvez vous référer à <a href="https://docs.python.org/3.4/library/codecs.html#standard-encodings">ce tableau</a> qui décrit les encodages qu'il supporte.<a href="#fnref9">↩</a></p></li>
 </ol>
 </section>
 </body>
