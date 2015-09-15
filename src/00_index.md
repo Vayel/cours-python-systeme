@@ -57,6 +57,6 @@ Pour suivre ce cours, vous devrez :
 * Ne pas prendre peur à la vue d'une ligne de commande.
 
 Alors, êtes-vous prêts à ne plus être un *utilisateur lambda* de votre OS ? La
-curiosité de percer ses petits secrets vous a-t'elle piqué au vif ? Ne
+curiosité de percer ses petits secrets vous a-t'elle piqués au vif ? Ne
 frissonnez-vous pas de plaisir à l'idée de mettre les mains dans le cambouis ?
 Suivez-moi, et vous ne serez pas déçus !
